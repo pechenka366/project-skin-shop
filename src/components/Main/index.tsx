@@ -26,21 +26,21 @@ function Main() {
         <div className={styles.heroRight}>
           <div className={`${styles.heroColumn} ${styles.left}`}>
             <div className={`${styles.card} ${styles.card1}`}>
-              <img src="/img/img.svg" alt="img-main" className={styles.placeholder} />
+              <img src="/img/mainImg.jpg" alt="/img/img.svg" className={styles.placeholder} />
             </div>
 
             <div className={`${styles.card} ${styles.card3}`}>
-              <img src="/img/img.svg" alt="img-main" className={styles.placeholder} />
+              <img src="/img/mainImg2.jpg" alt="/img/img.svg" className={styles.placeholder} />
             </div>
           </div>
 
           <div className={`${styles.heroColumn} ${styles.right}`}>
             <div className={`${styles.card} ${styles.card2}`}>
-              <img src="/img/img.svg" alt="img-main" className={styles.placeholder} />
+              <img src="/img/mainImg3.jpg" alt="/img/img.svg" className={styles.placeholder} />
             </div>
 
             <div className={`${styles.card} ${styles.card4}`}>
-              <img src="/img/img.svg" alt="img-main" className={styles.placeholder} />
+              <img src="/img/mainImg4.jpg" alt="/img/img.svg" className={styles.placeholder} />
             </div>
           </div>
         </div>

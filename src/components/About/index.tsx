@@ -6,10 +6,10 @@ function About() {
       <div className={styles.aboutContainer}>
         <div className={styles.aboutGallery}>
           <div className={`${styles.aboutCard} ${styles.cardLarge}`}>
-            <img className={styles.placeholder} src="/img/img.svg" alt="img-main" />
+            <img className={styles.placeholder} src="/img/aboutImg.jpg" alt="/img/img.svg" />
           </div>
           <div className={`${styles.aboutCard} ${styles.cardMedium}`}>
-            <img className={styles.placeholder} src="/img/img.svg" alt="img-main" />
+            <img className={styles.placeholder} src="/img/mainImg.jpg" alt="/img/img.svg" />
           </div>
         </div>
         <div className={styles.aboutContent}>

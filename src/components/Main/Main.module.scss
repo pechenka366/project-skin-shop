@@ -15,7 +15,7 @@
 
 .heroContainer {
   max-width: 1472px;
-  margin: 0 auto;
+  margin: 4% auto;
   display: grid;
   grid-template-columns: 1fr 1fr;
   align-items: center;
@@ -227,10 +227,12 @@
 }
 
 .placeholder {
-  width: 70px;
-  height: 70px;
+  overflow: hidden;
   border-radius: 16px;
-  opacity: 0.5;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 
   @media (max-width: 768px) {
     width: 50px;

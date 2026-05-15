@@ -1,0 +1,67 @@
+.catalogCard {
+  position: relative;
+  overflow: hidden;
+  width: 460px;
+  height: 610px;
+  background: #ececec;
+  border-radius: 20px;
+  border: 0.7px solid #a0887a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  transition: 0.3s ease;
+
+  &:hover {
+    box-shadow:
+      0 20px 40px rgba(0, 0, 0, 0.10),
+      0 8px 20px rgba(0, 0, 0, 0.08);
+  }
+
+  &:hover .cardCart{
+    opacity: 1;
+    visibility: visible;
+  }
+}
+
+.placeholder {
+  transition: 0.3s ease;
+
+  &:hover {
+    transform: scale(1.1);
+  }
+}
+
+.cardPrice {
+  padding: 12px 0;
+}
+
+.cardCart {
+  opacity: 0;
+  position: absolute;
+  width: 50px;
+  height: 50px;
+  right: 10px;
+  bottom: 10px;
+  transition:  opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.cardName {
+  font-size: 20px;
+  font-weight: 400;
+  padding: 5px 0;
+}
+
+.cardText {
+  font-size: 18px;
+  font-weight: 300;
+  padding: 5px 0;
+  color: #58290e;
+}
+
+.cardCost {
+  font-size: 20px;
+  font-weight: 400;
+  padding: 5px 0;
+  color: #653e6e;
+}
