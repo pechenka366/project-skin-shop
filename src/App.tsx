@@ -10,32 +10,23 @@ import "./style/resert.css";
 import "./App.css";
 import { useEffect, useState } from "react";
 import axios from "axios";
-
-interface Product {
-  _id: string;
-  name: string;
-  title: string;
-  price: number;
-  img: string;
-}
-
-interface CartItem extends Product {
-  quantity: number;
-}
-
-interface NotificationState {
-  message: string;
-  type: "success" | "error" | "info";
-  id: number;
-}
+import type { Product, CartItem, NotificationState } from "./types";
 
 function App() {
-  const [isCartOpen, setIsCartOpen] = useState(true);
+  const [isCartOpen, setIsCartOpen] = useState(false);
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
-  const [notifications, setNotifications] = useState<NotificationState[]>([]); 
+  const [notifications, setNotifications] = useState<NotificationState[]>([]);
+  const [user, setUser] = useState<{
+    _id: string;
+    name: string;
+    email: string;
+  } | null>(null);
 
-  const showNotification = (message: string, type: "success" | "error" | "info") => {
+  const showNotification = (
+    message: string,
+    type: "success" | "error" | "info",
+  ) => {
     const id = Date.now();
     setNotifications((prev) => [...prev, { message, type, id }]);
   };
@@ -52,17 +43,51 @@ function App() {
   }, []);
 
   useEffect(() => {
-    axios
-      .get("http://localhost:5000/api/cart")
-      .then((response) => setCartItems(response.data))
-      .catch((error) => console.error("Ошибка загрузки корзины:", error));
+    if (user?._id) {
+      axios
+        .get(`http://localhost:5000/api/cart/${user._id}`)
+        .then((response) => setCartItems(response.data))
+        .catch((error) => console.error("Ошибка загрузки корзины:", error));
+    }
+  }, [user]);
+
+  useEffect(() => {
+    const savedUser = localStorage.getItem("user");
+    if (savedUser) {
+      setUser(JSON.parse(savedUser));
+    }
   }, []);
 
+  const handleLogin = (userData: {
+    _id: string;
+    name: string;
+    email: string;
+  }) => {
+    setUser(userData);
+    localStorage.setItem("user", JSON.stringify(userData));
+  };
+
+  const handleLogout = () => {
+    setUser(null);
+    setCartItems([]);
+    localStorage.removeItem("user");
+  };
+
   const addToCart = async (product: Product) => {
-    console.log("Добавление в корзину:", product.name);
+    console.log("user:", user);
+    console.log("user._id:", user?._id);
+    if (!user) {
+      showNotification(
+        "Войдите в аккаунт, чтобы добавить товар в корзину",
+        "info",
+      );
+      return;
+    }
+
     try {
       const response = await axios.post("http://localhost:5000/api/cart", {
-        _id: product._id,
+        userId: user._id,
+        productId: product._id,
         name: product.name,
         title: product.title,
         price: product.price,
@@ -71,37 +96,46 @@ function App() {
       });
 
       setCartItems((prev) => {
-        const existing = prev.find((item) => item._id === product._id);
+        const existing = prev.find((item) => item.productId === product._id);
         if (existing) {
-          showNotification(`Товар "${product.name}" добавлен в корзину`, "success"); 
           return prev.map((item) =>
-            item._id === product._id
+            item.productId === product._id
               ? { ...item, quantity: item.quantity + 1 }
-              : item
+              : item,
           );
         }
-        showNotification(`Товар "${product.name}" добавлен в корзину`, "success"); 
         return [...prev, response.data];
       });
 
-      console.log("Корзина после добавления:", cartItems.length + 1);
+      showNotification(`Товар "${product.name}" добавлен в корзину`, "success");
     } catch (error) {
       console.error("Ошибка:", error);
-      showNotification(`Ошибка при добавлении "${product.name}"`, "error"); 
+      showNotification(`Ошибка при добавлении "${product.name}"`, "error");
     }
   };
 
-  const removeFromCart = async (id: string) => {
+  const removeFromCart = async (productId: string) => {
+    if (!user) return;
+
     try {
-      const removedItem = cartItems.find((item) => item._id === id);
-      await axios.delete(`http://localhost:5000/api/cart/${id}`);
-      setCartItems((prev) => prev.filter((item) => item._id !== id));
+      const removedItem = cartItems.find(
+        (item) => item.productId === productId,
+      );
+      await axios.delete(
+        `http://localhost:5000/api/cart/${user._id}/${productId}`,
+      );
+      setCartItems((prev) =>
+        prev.filter((item) => item.productId !== productId),
+      );
       if (removedItem) {
-        showNotification(`Товар "${removedItem.name}" удалён из корзины`, "info"); 
+        showNotification(
+          `Товар "${removedItem.name}" удалён из корзины`,
+          "info",
+        );
       }
     } catch (error) {
-      console.error("Ошибка удаления из корзины:", error);
-      showNotification(`Ошибка при удалении товара`, "error"); 
+      console.error("Ошибка удаления:", error);
+      showNotification(`Ошибка при удалении товара`, "error");
     }
   };
 
@@ -123,6 +157,9 @@ function App() {
         isCartOpen={isCartOpen}
         cartItems={cartItems}
         onRemoveFromCart={removeFromCart}
+        user={user}
+        onLogout={handleLogout}
+        onLogin={handleLogin}
       />
       <Main />
       <About />

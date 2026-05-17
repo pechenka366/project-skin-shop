@@ -1,48 +1,37 @@
-import express from 'express';
-import mongoose from 'mongoose';
-import cors from 'cors';
+import express from "express";
+import mongoose from "mongoose";
+import cors from "cors";
+import bcrypt from "bcryptjs";
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-const MONGO_URI = 'mongodb+srv://alexayax366_db_user:P3rffuqn.366957@skinshop.esfe896.mongodb.net/shop';
+const MONGO_URI =
+  "mongodb+srv://alexayax366_db_user:P3rffuqn.366957@skinshop.esfe896.mongodb.net/shop";
 
-mongoose.connect(MONGO_URI)
-  .then(() => console.log('MongoDB connected'))
-  .catch(err => console.error('MongoDB error:', err));
+mongoose
+  .connect(MONGO_URI)
+  .then(() => console.log("MongoDB connected"))
+  .catch((err) => console.error("MongoDB error:", err));
 
 const productSchema = new mongoose.Schema({
   name: String,
   title: String,
   price: Number,
-  img: String
+  img: String,
 });
 
-const Product = mongoose.model('Product', productSchema);
-
-app.get('/', (req, res) => {
-  res.send('API работает <a href="/api/products">/api/products</a>');
-});
-
-app.get('/api/products', async (req, res) => {
-  const products = await Product.find();
-  res.json(products);
-});
-
-app.post('/api/products', async (req, res) => {
-  const product = new Product(req.body);
-  await product.save();
-  res.json(product);
-});
-
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+const userSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  email: { type: String, required: true, unique: true },
+  password: { type: String, required: true },
+  createdAt: { type: Date, default: Date.now },
 });
 
 const cartItemSchema = new mongoose.Schema({
-  _id: { type: String, required: true },
+  userId: { type: String, required: true },  
+  productId: { type: String, required: true },
   name: { type: String, required: true },
   title: { type: String, required: true },
   price: { type: Number, required: true },
@@ -50,29 +39,40 @@ const cartItemSchema = new mongoose.Schema({
   quantity: { type: Number, default: 1 }
 });
 
-const CartItem = mongoose.model('CartItem', cartItemSchema);
+const Product = mongoose.model("Product", productSchema);
+const User = mongoose.model("User", userSchema);
+const CartItem = mongoose.model("CartItem", cartItemSchema);
 
-app.get('/api/cart', async (req, res) => {
+const isValidEmail = (email) => {
+  const emailRegex = /^[^\s@]+@([^\s@.,]+\.)+[^\s@.,]{2,}$/;
+  return emailRegex.test(email);
+};
+
+app.get("/api/products", async (req, res) => {
+  const products = await Product.find();
+  res.json(products);
+});
+
+app.get("/api/cart/:userId", async (req, res) => {
   try {
-    const cartItems = await CartItem.find();
-    res.json(cartItems);
+    const items = await CartItem.find({ userId: req.params.userId });
+    res.json(items);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 });
 
-app.post('/api/cart', async (req, res) => {
+app.post("/api/cart", async (req, res) => {
   try {
-    const { _id, name, title, price, img, quantity } = req.body;
-    
-    const existingItem = await CartItem.findOne({ _id });
-    
+    const { userId, productId, name, title, price, img, quantity } = req.body;
+
+    const existingItem = await CartItem.findOne({ userId, productId });
     if (existingItem) {
       existingItem.quantity += 1;
       await existingItem.save();
       res.json(existingItem);
     } else {
-      const newItem = new CartItem({ _id, name, title, price, img, quantity: quantity || 1 });
+      const newItem = new CartItem({ userId, productId, name, title, price, img, quantity });
       await newItem.save();
       res.status(201).json(newItem);
     }
@@ -81,28 +81,71 @@ app.post('/api/cart', async (req, res) => {
   }
 });
 
-app.delete('/api/cart/:id', async (req, res) => {
+app.delete("/api/cart/:userId/:productId", async (req, res) => {
   try {
-    await CartItem.deleteOne({ _id: req.params.id });
-    res.json({ message: 'Товар удалён' });
+    await CartItem.deleteOne({ 
+      userId: req.params.userId, 
+      productId: req.params.productId 
+    });
+    res.json({ message: "Товар удалён" });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 });
 
-app.put('/api/cart/:id', async (req, res) => {
+app.post("/api/register", async (req, res) => {
   try {
-    const { quantity } = req.body;
-    const item = await CartItem.findOne({ _id: req.params.id });
-    
-    if (item) {
-      item.quantity = quantity;
-      await item.save();
-      res.json(item);
-    } else {
-      res.status(404).json({ message: 'Товар не найден' });
+    const { name, email, password } = req.body;
+
+    if (!isValidEmail(email)) {
+      return res.status(400).json({ message: "Введите корректный email" });
     }
+
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res
+        .status(400)
+        .json({ message: "Пользователь с таким email уже существует" });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const user = new User({ name, email, password: hashedPassword });
+    await user.save();
+
+    res.status(201).json({
+      message: "Регистрация успешна",
+      user: { _id: user._id, name: user.name, email: user.email },
+    });
   } catch (err) {
-    res.status(400).json({ message: err.message });
+    res.status(500).json({ message: err.message });
   }
+});
+
+app.post("/api/login", async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(400).json({ message: "Пользователь не найден" });
+    }
+
+    const isValid = await bcrypt.compare(password, user.password);
+    if (!isValid) {
+      return res.status(400).json({ message: "Неверный пароль" });
+    }
+
+    res.json({
+      message: "Вход успешен",
+      user: { _id: user._id, name: user.name, email: user.email },
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`Server running on http://localhost:${PORT}`);
 });

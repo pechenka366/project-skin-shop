@@ -1,14 +1,6 @@
 import { useEffect, useRef } from "react";
+import type { CartItem } from "../../types";
 import styles from "./Cart.module.scss";
-
-interface CartItem {
-  _id: string;
-  name: string;
-  title: string;
-  price: number;
-  img: string;
-  quantity: number;
-}
 
 interface CartProps {
   items: CartItem[];
@@ -18,18 +10,14 @@ interface CartProps {
 }
 
 function Cart({ items, onRemove, onClose, isOpen }: CartProps) {
-  console.log("🛒 Cart получил товары:", items);
   const cartRef = useRef<HTMLDivElement>(null);
-  const totalPrice = items.reduce(
-    (sum, item) => sum + item.price * item.quantity,
-    0,
-  );
+  const totalPrice = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as HTMLElement;
-      const isCartIcon = target.closest("[data-cart-icon]");
-
+      const isCartIcon = target.closest('[data-cart-icon]');
+      
       if (cartRef.current && !cartRef.current.contains(target) && !isCartIcon) {
         onClose();
       }
@@ -50,9 +38,7 @@ function Cart({ items, onRemove, onClose, isOpen }: CartProps) {
     <div className={styles.cartDropdown} ref={cartRef}>
       <div className={styles.header}>
         <h3>Корзина</h3>
-        <button className={styles.closeBtn} onClick={onClose}>
-          ×
-        </button>
+        <button className={styles.closeBtn} onClick={onClose}>×</button>
       </div>
 
       {items.length === 0 ? (
@@ -70,9 +56,9 @@ function Cart({ items, onRemove, onClose, isOpen }: CartProps) {
                     {item.price.toLocaleString()} ₽ × {item.quantity}
                   </div>
                 </div>
-                <button
+                <button 
                   className={styles.removeBtn}
-                  onClick={() => onRemove(item._id)}
+                  onClick={() => onRemove(item.productId)}
                 >
                   ×
                 </button>
@@ -85,7 +71,9 @@ function Cart({ items, onRemove, onClose, isOpen }: CartProps) {
               <span>Итого:</span>
               <strong>{totalPrice.toLocaleString()} ₽</strong>
             </div>
-            <button className={styles.checkoutBtn}>Перейти к оплате</button>
+            <button className={styles.checkoutBtn}>
+              Перейти к оплате
+            </button>
           </div>
         </>
       )}
