@@ -55,7 +55,41 @@ img {
 }
 
 .icons {
-  img {
-    margin: 7px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  position: relative;
+}
+
+.cartWrapper {
+  position: relative;
+}
+
+.cartIcon {
+  cursor: pointer;
+  transition: opacity 0.2s;
+  display: block;
+
+  &:hover {
+    opacity: 0.7;
+  }
+}
+
+.cartDropdownContainer {
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 50%;
+  transform: translateX(-50%);  
+  z-index: 1001;
+  white-space: nowrap;
+}
+
+.cartIcon {
+  cursor: pointer;
+  transition: opacity 0.2s;
+  display: block;
+
+  &:hover {
+    opacity: 0.7;
   }
 }

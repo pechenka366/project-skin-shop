@@ -1,7 +1,5 @@
-import { useEffect, useState } from "react";
-import Card from "../Card";
 import styles from "./Catalog.module.scss";
-import axios from "axios";
+import Card from "../Card";
 
 interface Product {
   _id: string;
@@ -11,31 +9,14 @@ interface Product {
   img: string;
 }
 
-function Catalog() {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+interface CatalogProps {
+  products: Product[];
+  onAddToCart: (product: Product) => void;
+}
 
-  useEffect(() => {
-    axios
-      .get("http://localhost:5000/api/products")
-      .then((response) => {
-        setProducts(response.data);
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.error("Ошибка загрузки: ", err);
-        setError("Не удалось загрузить товары");
-        setLoading(false)
-      });
-  }, []);
-
-  if(loading) {
-    return <div className={styles.loading}>Загрузка...</div>
-  }
-
-  if (error){
-    return <div className={styles.error}>{error}</div>
+function Catalog({ products, onAddToCart }: CatalogProps) {
+  if (products.length === 0) {
+    return <div className={styles.loading}>Загрузка...</div>;
   }
 
   return (
@@ -50,12 +31,15 @@ function Catalog() {
       </div>
       <div className={styles.catalogGallery}>
         {products.map((product) => (
-          <Card 
-          key={product._id}
-          name={product.name}
-          title={product.title}
-          price={product.price}
-          image={product.img}/>
+          <Card
+            key={product._id}
+            _id={product._id}
+            name={product.name}
+            title={product.title}
+            price={product.price}
+            image={product.img}
+            onAddToCart={() => onAddToCart(product)}
+          />
         ))}
       </div>
     </section>

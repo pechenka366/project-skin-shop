@@ -43,11 +43,16 @@
   box-shadow:
     0 20px 40px rgba(0, 0, 0, 0.06),
     0 8px 20px rgba(0, 0, 0, 0.04);
+  transition: 0.3s ease;
+
+  &:hover {
+    transform: translateY(-6px);
+  }
 }
 
 .cardLarge {
   width: 330px;
-  height: 520px;
+  height: 430px;
 }
 
 .cardMedium {
@@ -70,16 +75,16 @@
 }
 
 .aboutLabel {
-  font-size: 14px;
+  font-size: 20px;
   text-transform: uppercase;
   letter-spacing: 4px;
-  color: #8b6c54;
+  color: #9a7aa6;
   margin-bottom: 24px;
   font-weight: 600;
 }
 
 .aboutTitle {
-  font-size: 64px;
+  font-size: 55px;
   line-height: 1;
   font-weight: 500;
   color: #2d1f18;

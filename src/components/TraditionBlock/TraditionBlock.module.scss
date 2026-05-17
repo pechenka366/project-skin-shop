@@ -1,0 +1,188 @@
+.tradition {
+  min-height: 100vh;
+  padding: 80px 60px;
+  background: #ffffff;
+  overflow: hidden;
+
+  @media (max-width: 1200px) {
+    padding: 60px 40px;
+  }
+
+  @media (max-width: 768px) {
+    padding: 40px 20px;
+  }
+}
+
+.traditionContainer {
+  max-width: 1472px;
+  margin: 4% auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  gap: 120px;
+
+  @media (max-width: 1200px) {
+    gap: 60px;
+  }
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+}
+
+.traditionLabel {
+  font-size: 20px;
+  text-transform: uppercase;
+  letter-spacing: 4px;
+  color: #9a7aa6;
+  font-weight: 600;
+  padding-bottom: 30px;
+}
+
+.traditionTitle {
+  font-size: 55px;
+  line-height: 0.95;
+  font-weight: 500;
+  color: #2d1f18;
+
+}
+
+.traditionDescription1 {
+  margin-top: 40px;
+  font-size: 22px;
+  line-height: 1.7;
+  color: #7d6f67;
+}
+
+.traditionDescription {
+  margin-top: 40px;
+  font-size: 22px;
+  line-height: 1.7;
+  color: #7d6f67;
+  padding-bottom: 20px;
+  border-bottom: 1px solid silver;
+}
+
+.traditionLeftBottom {
+    padding-top: 25px;
+    display: flex;
+    justify-content: space-around;
+}
+
+.traditionName {
+    font-size: 30px;
+
+}
+
+.traditionText {
+    color: #58290e;
+
+}
+
+
+.traditionRight {
+  display: flex;
+  gap: 28px;
+  justify-content: center;
+  align-items: flex-start;
+
+  @media (max-width: 768px) {
+    gap: 20px;
+  }
+}
+
+.traditionColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+
+  &.left {
+    margin-top: -40px;
+  }
+
+  &.right {
+    margin-top: 40px;
+  }
+
+  @media (max-width: 768px) {
+    gap: 20px;
+
+    &.left,
+    &.right {
+      margin-top: 0;
+    }
+  }
+}
+
+.card {
+  width: 320px;
+  border-radius: 24px;
+  background: #ececec;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow:
+    0 25px 60px rgba(0, 0, 0, 0.08),
+    0 10px 20px rgba(0, 0, 0, 0.04);
+  transition: 0.3s ease;
+
+  &:hover {
+    transform: translateY(-6px);
+  }
+
+  @media (max-width: 1200px) {
+    width: 280px;
+  }
+
+  @media (max-width: 768px) {
+    width: 100%;
+    max-width: 280px;
+  }
+}
+
+.card1 {
+  height: 430px;
+
+  @media (max-width: 768px) {
+    height: 380px;
+  }
+}
+
+.card2 {
+  height: 320px;
+
+  @media (max-width: 768px) {
+    height: 280px;
+  }
+}
+
+.card3 {
+  height: 360px;
+
+  @media (max-width: 768px) {
+    height: 320px;
+  }
+}
+
+.card4 {
+  height: 430px;
+
+  @media (max-width: 768px) {
+    height: 380px;
+  }
+}
+
+.placeholder {
+  overflow: hidden;
+  border-radius: 16px;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+
+  @media (max-width: 768px) {
+    width: 50px;
+    height: 50px;
+  }
+}

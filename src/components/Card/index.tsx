@@ -1,25 +1,30 @@
 import styles from "./Card.module.scss";
+import { ShoppingCart as CardCart} from "lucide-react";
 
 interface CardProps {
+  _id: string;
   name: string;
   title: string;
   price: number;
   image: string;
+  onAddToCart: () => void;
 }
 
-function Card({name, title, price, image}: CardProps) {
+function Card({ name, title, price, image, onAddToCart }: CardProps) {
   return (
-    <section className={styles.card}>
-      <div className={`${styles.catalogCard}`}>
-        <img className={styles.placeholder} src={image} alt="img-main" />
-        <img className={styles.cardCart} src="./img/cart.svg" alt="cart-card" />
+    <div className={styles.card}>
+      <div className={styles.catalogCard}>
+        <img className={styles.placeholder} src={image} alt={name} />
+        <button className={styles.cardCart} onClick={onAddToCart}>
+          <CardCart className={styles.image} />
+        </button>
       </div>
       <div className={styles.cardPrice}>
-        <h1 className={styles.cardName}>{name}</h1>
+        <h3 className={styles.cardName}>{name}</h3>
         <p className={styles.cardText}>{title}</p>
-        <h2 className={styles.cardCost}>₽ {price.toLocaleString()}</h2>
+        <div className={styles.cardCost}>{price.toLocaleString()} ₽</div>
       </div>
-    </section>
+    </div>
   );
 }
 
