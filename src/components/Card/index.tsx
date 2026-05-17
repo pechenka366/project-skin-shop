@@ -11,11 +11,14 @@ interface CardProps {
 }
 
 function Card({ name, title, price, image, onAddToCart }: CardProps) {
+    const handleClick = () => {
+    onAddToCart();
+  };
   return (
     <div className={styles.card}>
       <div className={styles.catalogCard}>
         <img className={styles.placeholder} src={image} alt={name} />
-        <button className={styles.cardCart} onClick={onAddToCart}>
+        <button className={styles.cardCart} onClick={handleClick}>
           <CardCart className={styles.image} />
         </button>
       </div>

@@ -38,7 +38,9 @@ function Catalog({ products, onAddToCart }: CatalogProps) {
             title={product.title}
             price={product.price}
             image={product.img}
-            onAddToCart={() => onAddToCart(product)}
+            onAddToCart={() => {
+              onAddToCart(product);
+            }}
           />
         ))}
       </div>
