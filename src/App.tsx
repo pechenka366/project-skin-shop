@@ -37,7 +37,7 @@ function App() {
 
   useEffect(() => {
     axios
-      .get("http://localhost:5000/api/products")
+      .get("http://157.22.192.56/api/products")
       .then((response) => setProducts(response.data))
       .catch((error) => console.error("Ошибка загрузки товаров:", error));
   }, []);
@@ -45,7 +45,7 @@ function App() {
   useEffect(() => {
     if (user?._id) {
       axios
-        .get(`http://localhost:5000/api/cart/${user._id}`)
+        .get(`http://157.22.192.56/api/cart/${user._id}`)
         .then((response) => setCartItems(response.data))
         .catch((error) => console.error("Ошибка загрузки корзины:", error));
     }
@@ -85,7 +85,7 @@ function App() {
     }
 
     try {
-      const response = await axios.post("http://localhost:5000/api/cart", {
+      const response = await axios.post("http://157.22.192.56/api/cart", {
         userId: user._id,
         productId: product._id,
         name: product.name,
@@ -122,7 +122,7 @@ function App() {
         (item) => item.productId === productId,
       );
       await axios.delete(
-        `http://localhost:5000/api/cart/${user._id}/${productId}`,
+        `http://157.22.192.56/api/cart/${user._id}/${productId}`,
       );
       setCartItems((prev) =>
         prev.filter((item) => item.productId !== productId),

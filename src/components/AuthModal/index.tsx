@@ -39,7 +39,7 @@ function AuthModal({ isOpen, onClose, onLogin }: AuthModalProps) {
 
     try {
       if (isLogin) {
-        const response = await axios.post("http://localhost:5000/api/login", {
+        const response = await axios.post("http://157.22.192.56/api/login", {
           email,
           password,
         });
@@ -52,7 +52,7 @@ function AuthModal({ isOpen, onClose, onLogin }: AuthModalProps) {
         onClose();
       } else {
         const response = await axios.post(
-          "http://localhost:5000/api/register",
+          "http://157.22.192.56/api/register",
           {
             name,
             email,
