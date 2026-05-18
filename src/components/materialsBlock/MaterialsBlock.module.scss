@@ -1,106 +1,167 @@
 .materials {
-  width: 1472px;
+  width: 100%;
+  max-width: 1472px;
   margin: 0 auto;
-  padding: 100px 0;
+  padding: 100px 20px;
+  overflow-x: hidden;
+
+  @media (max-width: 1200px) {
+    padding: 80px 20px;
+  }
+
+  @media (max-width: 768px) {
+    padding: 60px 16px;
+  }
+
+  @media (max-width: 480px) {
+    padding: 40px 16px;
+  }
 }
 
 .marerialsContainer {
   text-align: center;
+  margin-bottom: 60px;
+
+  @media (max-width: 768px) {
+    margin-bottom: 40px;
+  }
 }
 
 .marerialsTitle {
-  font-size: 20px;
+  font-size: 14px;
   text-transform: uppercase;
   letter-spacing: 4px;
   color: #9a7aa6;
   font-weight: 600;
+
+  @media (max-width: 768px) {
+    font-size: 12px;
+    letter-spacing: 3px;
+  }
 }
 
 .marerialsName {
-  font-size: 55px;
-  line-height: 0.95;
+  font-size: 48px;
+  line-height: 1.1;
   font-weight: 500;
   color: #2d1f18;
-  padding: 30px 0;
+  padding: 24px 0 16px;
+
+  @media (max-width: 1024px) {
+    font-size: 40px;
+  }
+
+  @media (max-width: 768px) {
+    font-size: 32px;
+    padding: 20px 0 12px;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 28px;
+  }
 }
 
 .marerialsText {
-  font-size: 24px;
-  line-height: 1.7;
+  font-size: 18px;
+  line-height: 1.6;
   color: #7a675d;
-  padding-bottom: 40px;
+  max-width: 800px;
+  margin: 0 auto;
+
+  @media (max-width: 768px) {
+    font-size: 16px;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 14px;
+  }
 }
 
 .materialsGallery {
   display: flex;
-  justify-content: space-around;
+  gap: 30px;
+  justify-content: center;
+
+  @media (max-width: 1024px) {
+    gap: 20px;
+  }
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+  }
 }
 
 .left {
   overflow: hidden;
-  width: 720px;
-  height: 720px;
+  width: 100%;
+  max-width: 720px;
+  height: auto;
+  aspect-ratio: 1 / 1;
   background: #ffffff;
   border-radius: 20px;
   display: flex;
   align-items: center;
   justify-content: center;
 
+  @media (max-width: 1024px) {
+    max-width: 500px;
+  }
+
+  @media (max-width: 768px) {
+    max-width: 100%;
+  }
 }
 
-.rightTop {
+.right {
   display: flex;
-  padding-bottom: 20px;
+  flex-direction: column;
+  gap: 20px;
+
+  @media (max-width: 768px) {
+    width: 100%;
+    align-items: center;
+  }
 }
 
-.firstImage {
-  margin-right: 20px;
-  display: flex;
-  overflow: hidden;
-  width: 350px;
-  height: 350px;
-  background: #ffffff;
-  border-radius: 20px;
-  align-items: center;
-  justify-content: center;
-}
-
-.twelveImage {
-  display: flex;
-  overflow: hidden;
-  width: 350px;
-  height: 350px;
-  background: #ffffff;
-  border-radius: 20px;
-  align-items: center;
-  justify-content: center;
-}
-
+.rightTop,
 .rightBottom {
   display: flex;
+  gap: 20px;
+
+  @media (max-width: 480px) {
+    flex-direction: column;
+    gap: 16px;
+  }
 }
 
-.secondImage {
-  margin-right: 20px;
-  display: flex;
-  overflow: hidden;
-  width: 350px;
-  height: 350px;
-  background: #ffffff;
-  border-radius: 20px;
-  align-items: center;
-  justify-content: center;
-}
-
+.firstImage,
+.twelveImage,
+.secondImage,
 .fourthImage {
-  display: flex;
   overflow: hidden;
-  width: 350px;
-  height: 350px;
+  width: 100%;
+  max-width: 350px;
+  height: auto;
+  aspect-ratio: 1 / 1;
   background: #ffffff;
   border-radius: 20px;
+  display: flex;
   align-items: center;
   justify-content: center;
+
+  @media (max-width: 1024px) {
+    max-width: 280px;
+  }
+
+  @media (max-width: 768px) {
+    max-width: 250px;
+  }
+
+  @media (max-width: 480px) {
+    max-width: 100%;
+  }
 }
 
 .left,
@@ -108,7 +169,7 @@
 .twelveImage,
 .secondImage,
 .fourthImage {
-  overflow: hidden;  
+  overflow: hidden;
   position: relative;
 }
 
@@ -119,6 +180,6 @@
 .fourthImage img {
   width: 100%;
   height: 100%;
-  object-fit: cover;   
+  object-fit: cover;
   display: block;
 }

@@ -15,6 +15,7 @@ function AuthModal({ isOpen, onClose, onLogin }: AuthModalProps) {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const API = import.meta.env.VITE_API_URL;
 
   const handleSwitchMode = () => {
     setIsLogin(!isLogin);
@@ -39,7 +40,7 @@ function AuthModal({ isOpen, onClose, onLogin }: AuthModalProps) {
 
     try {
       if (isLogin) {
-        const response = await axios.post("http://157.22.192.56/api/login", {
+        const response = await axios.post(`${API}/api/login`, {
           email,
           password,
         });
@@ -51,14 +52,11 @@ function AuthModal({ isOpen, onClose, onLogin }: AuthModalProps) {
         });
         onClose();
       } else {
-        const response = await axios.post(
-          "http://157.22.192.56/api/register",
-          {
-            name,
-            email,
-            password,
-          },
-        );
+        const response = await axios.post(`${API}/api/register`, {
+          name,
+          email,
+          password,
+        });
 
         onLogin({
           _id: response.data.user._id,

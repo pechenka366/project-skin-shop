@@ -9,7 +9,6 @@
   display: flex;
   align-items: center;
   justify-content: center;
-
   transition: 0.3s ease;
 
   &:hover {
@@ -18,13 +17,41 @@
       0 8px 20px rgba(0, 0, 0, 0.08);
   }
 
-  &:hover .cardCart{
+  &:hover .cardCart {
     opacity: 1;
     visibility: visible;
+  }
+
+  /* Адаптация для планшетов */
+  @media (max-width: 1200px) {
+    width: 360px;
+    height: 480px;
+  }
+
+  @media (max-width: 900px) {
+    width: 320px;
+    height: 420px;
+  }
+
+  @media (max-width: 768px) {
+    width: 280px;
+    height: 370px;
+  }
+
+  @media (max-width: 576px) {
+    width: 100%;
+    max-width: 320px;
+    height: auto;
+    min-height: 400px;
+    aspect-ratio: 3 / 4;
+    margin: 0 auto;
   }
 }
 
 .placeholder {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
   transition: 0.3s ease;
 
   &:hover {
@@ -34,12 +61,25 @@
 
 .cardPrice {
   padding: 12px 0;
+  text-align: left;
+
+  @media (max-width: 576px) {
+    text-align: center;
+  }
 }
 
 .image {
   position: absolute;
   left: 12px;
   top: 13px;
+  z-index: 2;
+
+  @media (max-width: 576px) {
+    left: 10px;
+    top: 10px;
+    width: 24px;
+    height: 24px;
+  }
 }
 
 .cardCart {
@@ -52,13 +92,44 @@
   color: #ffffff;
   background-color: #653e6e;
   border-radius: 30px;
-  transition:  opacity 0.3s ease, visibility 0.3s ease;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border: none;
+  z-index: 2;
+
+  &:hover {
+    background-color: #7c5b84;
+    transform: scale(1.05);
+  }
+
+  @media (max-width: 768px) {
+    width: 42px;
+    height: 42px;
+  }
+
+  @media (max-width: 576px) {
+    width: 38px;
+    height: 38px;
+    right: 8px;
+    bottom: 8px;
+  }
 }
 
 .cardName {
   font-size: 20px;
   font-weight: 400;
   padding: 5px 0;
+
+  @media (max-width: 768px) {
+    font-size: 18px;
+  }
+
+  @media (max-width: 576px) {
+    font-size: 16px;
+  }
 }
 
 .cardText {
@@ -66,6 +137,14 @@
   font-weight: 300;
   padding: 5px 0;
   color: #58290e;
+
+  @media (max-width: 768px) {
+    font-size: 16px;
+  }
+
+  @media (max-width: 576px) {
+    font-size: 14px;
+  }
 }
 
 .cardCost {
@@ -73,4 +152,12 @@
   font-weight: 400;
   padding: 5px 0;
   color: #653e6e;
+
+  @media (max-width: 768px) {
+    font-size: 18px;
+  }
+
+  @media (max-width: 576px) {
+    font-size: 16px;
+  }
 }

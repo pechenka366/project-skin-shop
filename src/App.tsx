@@ -6,6 +6,7 @@ import MaterialsBlock from "./components/materialsBlock";
 import TraditionBlock from "./components/TraditionBlock";
 import InfoBlock from "./components/InfoBlock";
 import Notification from "./components/Notification";
+import Footer from "./components/Footer";
 import "./style/resert.css";
 import "./App.css";
 import { useEffect, useState } from "react";
@@ -17,6 +18,7 @@ function App() {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [notifications, setNotifications] = useState<NotificationState[]>([]);
+  const API = import.meta.env.VITE_API_URL;
   const [user, setUser] = useState<{
     _id: string;
     name: string;
@@ -37,7 +39,7 @@ function App() {
 
   useEffect(() => {
     axios
-      .get("http://157.22.192.56/api/products")
+      .get(`${import.meta.env.VITE_API_URL}/api/products`)
       .then((response) => setProducts(response.data))
       .catch((error) => console.error("Ошибка загрузки товаров:", error));
   }, []);
@@ -45,7 +47,7 @@ function App() {
   useEffect(() => {
     if (user?._id) {
       axios
-        .get(`http://157.22.192.56/api/cart/${user._id}`)
+        .get(`${API}/api/cart/${user._id}`)
         .then((response) => setCartItems(response.data))
         .catch((error) => console.error("Ошибка загрузки корзины:", error));
     }
@@ -85,7 +87,7 @@ function App() {
     }
 
     try {
-      const response = await axios.post("http://157.22.192.56/api/cart", {
+      const response = await axios.post(`${API}/api/cart`, {
         userId: user._id,
         productId: product._id,
         name: product.name,
@@ -121,9 +123,7 @@ function App() {
       const removedItem = cartItems.find(
         (item) => item.productId === productId,
       );
-      await axios.delete(
-        `http://157.22.192.56/api/cart/${user._id}/${productId}`,
-      );
+      await axios.delete(`${API}/api/cart/${user._id}/${productId}`);
       setCartItems((prev) =>
         prev.filter((item) => item.productId !== productId),
       );
@@ -167,6 +167,7 @@ function App() {
       <MaterialsBlock />
       <InfoBlock />
       <TraditionBlock />
+      <Footer />
     </>
   );
 }

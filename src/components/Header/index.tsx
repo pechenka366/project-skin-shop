@@ -23,6 +23,7 @@ function Header({
   onLogin,
 }: HeaderProps) {
   const [isAuthOpen, setIsAuthOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   return (
     <>
@@ -38,37 +39,65 @@ function Header({
       <header className={styles.header}>
         <div className={styles.headerContainer}>
           <span className={styles.logo}>KOVAC</span>
-          <nav>
+
+          <button
+            className={`${styles.burger} ${isMobileMenuOpen ? styles.open : ""}`}
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          >
+            <span></span>
+            <span></span>
+            <span></span>
+          </button>
+
+          <nav className={`${styles.nav} ${isMobileMenuOpen ? styles.mobileOpen : ""}`}>
             <ul className={styles.navList}>
               <li className={styles.navItem}>
-                <a href="/" className={styles.navLink}>
+                <a href="/" className={styles.navLink} onClick={() => setIsMobileMenuOpen(false)}>
                   Каталог
                 </a>
               </li>
               <li className={styles.navItem}>
-                <a href="#" className={styles.navLink}>
+                <a href="#" className={styles.navLink} onClick={() => setIsMobileMenuOpen(false)}>
                   О нас
                 </a>
               </li>
               <li className={styles.navItem}>
-                <a href="#" className={styles.navLink}>
+                <a href="#" className={styles.navLink} onClick={() => setIsMobileMenuOpen(false)}>
                   Мастерская
                 </a>
               </li>
               <li className={styles.navItem}>
-                <a href="#" className={styles.navLink}>
+                <a href="#" className={styles.navLink} onClick={() => setIsMobileMenuOpen(false)}>
                   Контакты
                 </a>
               </li>
             </ul>
+            <div className={styles.mobileIcons}>
+              <div className={styles.userWrapper}>
+                {user ? (
+                  <div className={styles.userMenu}>
+                    <span className={styles.userName}>{user.name}</span>
+                    <button onClick={onLogout} className={styles.logoutBtn}>
+                      Выйти
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    className={styles.mobileAuthBtn}
+                    onClick={() => {
+                      setIsAuthOpen(true);
+                      setIsMobileMenuOpen(false);
+                    }}
+                  >
+                    Войти
+                  </button>
+                )}
+              </div>
+            </div>
           </nav>
+
           <div className={styles.icons}>
-            <img
-              src="/img/magnifier.svg"
-              alt="magnifier"
-              width={28}
-              height={28}
-            />
+            <img src="/img/magnifier.svg" alt="magnifier" width={28} height={28} className={styles.icon} />
             <div className={styles.cartWrapper}>
               <img
                 src="/img/bag.svg"
@@ -93,7 +122,7 @@ function Header({
                 </div>
               )}
             </div>
-            <div className={styles.userWrapper}>
+            <div className={styles.userWrapperDesktop}>
               {user ? (
                 <div className={styles.userMenu}>
                   <span className={styles.userName}>{user.name}</span>
