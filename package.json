@@ -10,6 +10,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@logto/cli": "^1.39.0",
+    "@logto/react": "^4.0.14",
     "axios": "^1.16.1",
     "bcryptjs": "^3.0.3",
     "cors": "^2.8.6",
@@ -18,8 +20,15 @@
     "lucide-react": "^1.3.0",
     "mongodb": "^7.2.0",
     "mongoose": "^9.6.2",
+    "passport": "^0.7.0",
+    "passport-google-oauth20": "^2.0.0",
+    "passport-vkontakte": "^0.5.0",
+    "passport-yandex": "^0.0.5",
     "react": "^19.2.6",
-    "react-dom": "^19.2.6"
+    "react-content-loader": "^7.1.2",
+    "react-dom": "^19.2.6",
+    "react-icons": "^5.6.0",
+    "react-router-dom": "^7.15.1"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
@@ -35,5 +44,18 @@
     "typescript": "~6.0.2",
     "typescript-eslint": "^8.59.2",
     "vite": "^8.0.12"
-  }
+  },
+  "description": "This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.",
+  "main": "eslint.config.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pechenka366/project-skin-shop.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/pechenka366/project-skin-shop/issues"
+  },
+  "homepage": "https://github.com/pechenka366/project-skin-shop#readme"
 }

@@ -1,14 +1,17 @@
+import dotenv from 'dotenv';
+dotenv.config();
+
 import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
 import bcrypt from "bcryptjs";
-import dotenv from 'dotenv';
-
-dotenv.config();
+import passport from "./passport.js";
+import User from "./models/User.js";
 
 const app = express();
 app.use(cors());
 app.use(express.json());
+app.use(passport.initialize());
 
 const MONGO_URI = process.env.MONGO_URI;
 
@@ -24,25 +27,17 @@ const productSchema = new mongoose.Schema({
   img: String,
 });
 
-const userSchema = new mongoose.Schema({
-  name: { type: String, required: true },
-  email: { type: String, required: true, unique: true },
-  password: { type: String, required: true },
-  createdAt: { type: Date, default: Date.now },
-});
-
 const cartItemSchema = new mongoose.Schema({
-  userId: { type: String, required: true },  
+  userId: { type: String, required: true },
   productId: { type: String, required: true },
   name: { type: String, required: true },
   title: { type: String, required: true },
   price: { type: Number, required: true },
   img: { type: String, required: true },
-  quantity: { type: Number, default: 1 }
+  quantity: { type: Number, default: 1 },
 });
 
 const Product = mongoose.model("Product", productSchema);
-const User = mongoose.model("User", userSchema);
 const CartItem = mongoose.model("CartItem", cartItemSchema);
 
 const isValidEmail = (email) => {
@@ -74,7 +69,15 @@ app.post("/api/cart", async (req, res) => {
       await existingItem.save();
       res.json(existingItem);
     } else {
-      const newItem = new CartItem({ userId, productId, name, title, price, img, quantity });
+      const newItem = new CartItem({
+        userId,
+        productId,
+        name,
+        title,
+        price,
+        img,
+        quantity,
+      });
       await newItem.save();
       res.status(201).json(newItem);
     }
@@ -85,9 +88,9 @@ app.post("/api/cart", async (req, res) => {
 
 app.delete("/api/cart/:userId/:productId", async (req, res) => {
   try {
-    await CartItem.deleteOne({ 
-      userId: req.params.userId, 
-      productId: req.params.productId 
+    await CartItem.deleteOne({
+      userId: req.params.userId,
+      productId: req.params.productId,
     });
     res.json({ message: "Товар удалён" });
   } catch (err) {
@@ -146,6 +149,67 @@ app.post("/api/login", async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 });
+
+app.get(
+  "/auth/google",
+
+  passport.authenticate("google", {
+    scope: ["profile", "email"],
+  })
+);
+
+app.get(
+  "/auth/google/callback",
+
+  passport.authenticate("google", {
+    session: false,
+  }),
+
+  async (req, res) => {
+    const user = req.user;
+
+    res.redirect(
+      `http://localhost:5173/auth-success?` +
+      `id=${user._id}&` +
+      `name=${encodeURIComponent(user.name)}&` +
+      `email=${user.email}`
+    );
+  }
+);
+
+app.get('/auth/vk',
+  passport.authenticate('vkontakte')
+);
+
+app.get('/auth/vk/callback',
+  passport.authenticate('vkontakte', { session: false, failureRedirect: '/login' }),
+  async (req, res) => {
+    const user = req.user;
+    res.redirect(
+      `http://localhost:5173/auth-success?` +
+      `id=${user._id}&` +
+      `name=${encodeURIComponent(user.name)}&` +
+      `email=${user.email}`
+    );
+  }
+);
+
+app.get('/auth/yandex',
+  passport.authenticate('yandex')
+);
+
+app.get('/auth/yandex/callback',
+  passport.authenticate('yandex', { session: false, failureRedirect: '/login' }),
+  async (req, res) => {
+    const user = req.user;
+    res.redirect(
+      `http://localhost:5173/auth-success?` +
+      `id=${user._id}&` +
+      `name=${encodeURIComponent(user.name)}&` +
+      `email=${user.email}`
+    );
+  }
+);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, "0.0.0.0", () => {

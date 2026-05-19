@@ -12,12 +12,29 @@ interface Product {
 interface CatalogProps {
   products: Product[];
   onAddToCart: (product: Product) => void;
+  isLoading: boolean;
 }
 
-function Catalog({ products, onAddToCart }: CatalogProps) {
-  if (products.length === 0) {
-    return <div className={styles.loading}>Загрузка...</div>;
-  }
+function Catalog({ products, onAddToCart, isLoading }: CatalogProps) {
+
+  const renderItems = () => {
+    const items = isLoading ? [...Array(6)] : products;
+    
+    return items.map((product, index) => (
+      <Card
+        key={isLoading ? `skeleton-${index}` : product._id}
+        _id={isLoading ? `skeleton-${index}` : product._id}
+        name={isLoading ? "" : product.name}
+        title={isLoading ? "" : product.title}
+        price={isLoading ? 0 : product.price}
+        image={isLoading ? "" : product.img}
+        onAddToCart={() => {
+          if (!isLoading) onAddToCart(product);
+        }}
+        loading={isLoading}
+      />
+    ));
+  };
 
   return (
     <section className={styles.catalog}>
@@ -30,19 +47,7 @@ function Catalog({ products, onAddToCart }: CatalogProps) {
         </p>
       </div>
       <div className={styles.catalogGallery}>
-        {products.map((product) => (
-          <Card
-            key={product._id}
-            _id={product._id}
-            name={product.name}
-            title={product.title}
-            price={product.price}
-            image={product.img}
-            onAddToCart={() => {
-              onAddToCart(product);
-            }}
-          />
-        ))}
+        {renderItems()}
       </div>
     </section>
   );

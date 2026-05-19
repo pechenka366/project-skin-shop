@@ -1,81 +1,166 @@
 .footer {
   background-color: #8b6f47;
   padding: 80px 0;
+  width: 100%;
+  overflow-x: hidden;
+
+  @media (max-width: 1024px) {
+    padding: 60px 0;
+  }
+
+  @media (max-width: 768px) {
+    padding: 50px 0;
+  }
 }
 
 .footerOur {
-  width: 1472px;
+  max-width: 1472px;
+  width: 100%;
   margin: 0 auto;
   display: flex;
   justify-content: space-between;
-  border-bottom: 0.5px solid #c4a270;;
-  padding-bottom: 40px;
+  border-bottom: 0.5px solid #c4a270;
+  padding: 0 20px 40px 20px;
+  gap: 40px;
+  box-sizing: border-box;
+
+  @media (max-width: 900px) {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 40px;
+  }
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 35px;
+    padding: 0 20px 35px 20px;
+  }
+}
+
+.footerName {
+  flex: 1;
+  min-width: 220px;
+
+  @media (max-width: 768px) {
+    text-align: center;
+    width: 100%;
+  }
 }
 
 .footerLogo {
-  font-size: 30px;
+  font-size: 28px;
   font-weight: 500;
   color: white;
+
+  @media (max-width: 768px) {
+    font-size: 26px;
+  }
 }
 
 .footerInfo {
-  padding-top: 5px;
-  font-size: 18px;
+  padding-top: 12px;
+  font-size: 15px;
   color: #f1ebd9;
-  max-width: 350px;
+  max-width: 320px;
+  line-height: 1.5;
+
+  @media (max-width: 768px) {
+    max-width: 100%;
+    margin: 0 auto;
+  }
 }
 
 .footerAbout {
   display: block;
+  min-width: 150px;
+
+  @media (max-width: 900px) {
+    min-width: 200px;
+  }
+
+  @media (max-width: 768px) {
+    width: 100%;
+    text-align: center;
+  }
 }
 
 .footerAbout h1 {
-  font-size: 22px;
-  font-weight: 400;
+  font-size: 18px;
+  font-weight: 500;
   color: white;
-  padding-bottom: 5px;
+  padding-bottom: 12px;
+  margin-bottom: 8px;
+
+  @media (max-width: 768px) {
+    font-size: 18px;
+    padding-bottom: 10px;
+  }
 }
 
 .footerAbout button {
-  font-size: 18px;
+  font-size: 15px;
   color: #f1ebd9;
-  width: 100%;
-  display: table;
   text-align: left;
-  padding: 5px 0;
-
+  padding: 6px 0;
+  background: none;
+  border: none;
+  cursor: pointer;
   transition: color 0.2s;
-}
+  display: block;
 
-.footerAbout button:hover {
-  color: #fdfcf8;
+  &:hover {
+    color: #fdfcf8;
+  }
+
+  @media (max-width: 768px) {
+    text-align: center;
+    width: 100%;
+    padding: 8px 0;
+  }
 }
 
 .footerAbout p {
-  font-size: 18px;
+  font-size: 15px;
   color: #f1ebd9;
-  width: 100%;
-  display: table;
   text-align: left;
-  padding: 5px 0;
+  padding: 6px 0;
+  margin: 0;
+
+  @media (max-width: 768px) {
+    text-align: center;
+  }
 }
 
-
 .footerMails {
-    display: flex;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+
+  @media (max-width: 768px) {
+    justify-content: center;
+  }
 }
 
 .footerImage {
-    padding-right: 8px;
-    color: #f1ebd9;
+  display: flex;
+  align-items: center;
+  color: #f1ebd9;
+
+  svg {
+    width: 18px;
+    height: 18px;
+  }
 }
 
 .footerRoot {
-    padding: 40px;
-    text-align: center;
+  padding: 35px 20px 0 20px;
+  text-align: center;
 }
 
 .footerRootName {
-    font-size: 16px;
-    color: #c5c0b0;
+  font-size: 13px;
+  color: #c5c0b0;
 }

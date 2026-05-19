@@ -3,43 +3,116 @@
   background-color: #faf4f0;
   width: 100%;
   margin: 0 auto;
+  overflow-x: hidden;
 }
 
 .catalogContainer {
-  width: 1472px;
+  width: 100%;
+  max-width: 1472px;
   margin: 0 auto;
+  box-sizing: border-box;
+
+  @media (max-width: 1472px){
+    padding: 0 20px;
+  }
 }
 
 .catalogTitle {
-  font-size: 20px;
+  font-size: 14px;
   text-transform: uppercase;
   letter-spacing: 4px;
   color: #9a7aa6;
   font-weight: 600;
+
+  @media (max-width: 768px) {
+    font-size: 12px;
+    letter-spacing: 3px;
+  }
 }
 
 .catalogName {
-  font-size: 55px;
-  line-height: 0.95;
+  font-size: 48px;
+  line-height: 1.1;
   font-weight: 500;
   color: #2d1f18;
   max-width: 620px;
-  padding: 30px 0;
+  padding: 24px 0 20px;
+
+  @media (max-width: 1024px) {
+    font-size: 40px;
+  }
+
+  @media (max-width: 768px) {
+    font-size: 32px;
+    padding: 20px 0 16px;
+  }
 }
 
 .catalogText {
-  font-size: 24px;
-  line-height: 1.7;
+  font-size: 18px;
+  line-height: 1.6;
   color: #7a675d;
   max-width: 720px;
+
+  @media (max-width: 768px) {
+    font-size: 16px;
+  }
 }
 
 .catalogGallery {
-  width: 1472px;
-  margin: 40px auto;
-  display: flex;           
-  flex-wrap: wrap;         
-  gap: 30px;               
-  justify-content: flex-start; 
-  justify-content: space-between;
+  width: 100%;
+  max-width: 1472px;
+  margin: 40px auto 0;
+  padding: 0 20px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 30px;
+  box-sizing: border-box;
+
+  @media (max-width: 1200px) {
+    gap: 20px;
+  }
+
+  @media (max-width: 1024px) {
+    display: flex;
+    overflow-x: auto;
+    gap: 20px;
+    padding: 0 20px 20px 20px;
+    scroll-snap-type: x mandatory;
+
+    &::-webkit-scrollbar {
+      height: 4px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: #e0d4cd;
+      border-radius: 2px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: #8d6a96;
+      border-radius: 2px;
+    }
+
+    & > * {
+      flex: 0 0 auto;
+      width: 300px;
+      scroll-snap-align: start;
+    }
+  }
+
+  @media (max-width: 768px) {
+    gap: 16px;
+    padding: 0 16px 16px 16px;
+
+    & > * {
+      width: 280px;
+    }
+  }
+
+  @media (max-width: 576px) {
+    & > * {
+      width: 260px;
+    }
+  }
 }

@@ -1,5 +1,7 @@
 import { useState } from "react";
 import axios from "axios";
+import { FcGoogle } from "react-icons/fc";
+import { FaYandex, FaVk } from "react-icons/fa";
 import styles from "./AuthModal.module.scss";
 
 interface AuthModalProps {
@@ -15,7 +17,7 @@ function AuthModal({ isOpen, onClose, onLogin }: AuthModalProps) {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const API = import.meta.env.VITE_API_URL;
+  const API = "http://localhost:5000";
 
   const handleSwitchMode = () => {
     setIsLogin(!isLogin);
@@ -76,6 +78,10 @@ function AuthModal({ isOpen, onClose, onLogin }: AuthModalProps) {
     }
   };
 
+  const handleSocialLogin = (provider: string) => {
+    window.location.href = `${API}/auth/${provider}`;
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -113,6 +119,40 @@ function AuthModal({ isOpen, onClose, onLogin }: AuthModalProps) {
                   {isLoading ? "Загрузка..." : "Войти"}
                 </button>
               </form>
+
+              <div className={styles.divider}>
+                <span>или</span>
+              </div>
+
+              <div className={styles.socialButtons}>
+                <button
+                  type="button"
+                  onClick={() => handleSocialLogin("google")}
+                  className={styles.socialBtn}
+                  aria-label="Войти через Google"
+                >
+                  <FcGoogle size={28} />
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleSocialLogin("yandex")}
+                  className={styles.socialBtn}
+                  aria-label="Войти через Яндекс"
+                >
+                  <FaYandex size={24} color="#FC3F1D" />
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleSocialLogin("vkontakte")}
+                  className={styles.socialBtn}
+                  aria-label="Войти через ВКонтакте"
+                >
+                  <FaVk size={24} color="#0077FF" />
+                </button>
+              </div>
+
               <p className={styles.switchText}>
                 Нет аккаунта?
                 <button
@@ -158,6 +198,40 @@ function AuthModal({ isOpen, onClose, onLogin }: AuthModalProps) {
                   {isLoading ? "Загрузка..." : "Зарегистрироваться"}
                 </button>
               </form>
+
+              <div className={styles.divider}>
+                <span>или</span>
+              </div>
+
+              <div className={styles.socialButtons}>
+                <button
+                  type="button"
+                  onClick={() => handleSocialLogin("google")}
+                  className={styles.socialBtn}
+                  aria-label="Зарегистрироваться через Google"
+                >
+                  <FcGoogle size={28} />
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleSocialLogin("yandex")}
+                  className={styles.socialBtn}
+                  aria-label="Зарегистрироваться через Яндекс"
+                >
+                  <FaYandex size={24} color="#FC3F1D" />
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleSocialLogin("vkontakte")}
+                  className={styles.socialBtn}
+                  aria-label="Зарегистрироваться через ВКонтакте"
+                >
+                  <FaVk size={24} color="#0077FF" />
+                </button>
+              </div>
+
               <p className={styles.switchText}>
                 Уже есть аккаунт?
                 <button

@@ -1,8 +1,8 @@
 .about {
   padding: 120px 80px;
-  background: #ebe4df;
   width: 100%;
-  overflow-x: hidden;
+  margin: 0 auto;
+  box-sizing: border-box;
 
   @media (max-width: 1388px) {
     padding: 80px 40px;
@@ -22,12 +22,14 @@
 }
 
 .aboutContainer {
-  max-width: 1400px;
+  width: 100%;
+  max-width: 1472px;
   margin: 0 auto;
   display: grid;
   grid-template-columns: 1fr 1fr;
   align-items: center;
   gap: 60px;
+  box-sizing: border-box;
 
   @media (max-width: 1388px) {
     grid-template-columns: 1fr;
@@ -57,9 +59,7 @@
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  box-shadow:
-    0 20px 40px rgba(0, 0, 0, 0.06),
-    0 8px 20px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.06), 0 8px 20px rgba(0, 0, 0, 0.04);
   transition: 0.3s ease;
 
   &:hover {
@@ -83,12 +83,9 @@
 
   @media (max-width: 768px) {
     width: 100%;
-    max-width: 350px;
-    height: 380px;
-  }
-
-  @media (max-width: 480px) {
-    height: 280px;
+    max-width: 320px;
+    height: auto;
+    aspect-ratio: 3 / 4;
   }
 }
 
@@ -111,13 +108,10 @@
 
   @media (max-width: 768px) {
     width: 100%;
-    max-width: 350px;
-    height: 380px;
+    max-width: 320px;
+    height: auto;
+    aspect-ratio: 3 / 4;
     margin-top: 0;
-  }
-
-  @media (max-width: 480px) {
-    height: 280px;
   }
 }
 
@@ -129,6 +123,9 @@
 }
 
 .aboutContent {
+  width: 100%;
+  overflow-x: hidden;
+
   @media (max-width: 1388px) {
     text-align: center;
     max-width: 800px;
@@ -143,6 +140,7 @@
   color: #9a7aa6;
   margin-bottom: 24px;
   font-weight: 600;
+  word-break: break-word;
 
   @media (max-width: 1388px) {
     font-size: 13px;
@@ -162,6 +160,7 @@
   font-weight: 500;
   color: #2d1f18;
   margin-bottom: 32px;
+  word-break: break-word;
 
   @media (max-width: 1388px) {
     font-size: 44px;
@@ -186,6 +185,7 @@
   line-height: 1.6;
   color: #7a675d;
   max-width: 720px;
+  word-break: break-word;
 
   @media (max-width: 1388px) {
     font-size: 17px;
@@ -213,6 +213,8 @@
   display: flex;
   gap: 24px;
   margin-top: 48px;
+  flex-wrap: wrap;
+  justify-content: flex-start;
 
   @media (max-width: 1388px) {
     justify-content: center;

@@ -1,0 +1,137 @@
+.productAbout {
+  width: 1472px;
+  margin: 0 auto;
+}
+
+.productBack {
+  padding: 20px 0;
+  padding-bottom: 30px;
+  display: flex;
+  position: relative;
+}
+
+.productBackText {
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.productOur {
+  display: flex;
+  justify-content: space-between;
+}
+
+.productImageArrow {
+  position: absolute;
+  left: 0;
+  top: 20px;
+  color: #723f22;
+  transition: 0.2s;
+
+  &:hover {
+    color: #915633;
+  }
+}
+
+.productButtonBack {
+  padding-left: 30px;
+  color: #723f22;
+
+  &:hover {
+    color: #915633;
+  }
+}
+
+.productBigImage {
+  width: 700px;
+  height: 700px;
+  border-radius: 20px;
+}
+
+.productLeftSmall {
+  display: flex;
+  justify-content: space-between;
+  padding-top: 15px;
+}
+
+.productSmallImage {
+  width: 220px;
+  height: 220px;
+  border-radius: 20px;
+}
+
+.productRight {
+  width: 700px;
+}
+
+.productBackpack {
+  font-size: 50px;
+  font-weight: 400;
+  padding-bottom: 15px;
+}
+
+.productPackInfo {
+  font-size: 18px;
+  color: #723f22;
+  padding-bottom: 15px;
+}
+
+.productPrice {
+  font-size: 35px;
+  color: #653e6e;
+  padding-bottom: 15px;
+}
+
+.productInfo {
+  font-size: 18px;
+  font-weight: 300;
+  color: #723f22;
+  padding: 30px;
+  background-color: white;
+  border-radius: 15px;
+  line-height: 30px;
+  margin-bottom: 30px;
+}
+
+.productButton {
+  display: flex;
+  padding: 15px;
+  background-color: #653e6e;
+  width: 100%;
+  color: white;
+  border-radius: 20px;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.productButtonText {
+  padding-left: 5px;
+}
+
+.productFlex {
+  display: flex;
+  justify-content: space-between;
+}
+
+.productFlexClass {
+  display: flex;
+  justify-content: center;
+  width: 180px;
+  padding: 20px;
+  background-color: rgb(233, 222, 210);
+  border-radius: 15px;
+}
+
+.productFlexImage {
+  display: flex;
+  color: #653e6e;
+  justify-content: center;
+  width: 25px;
+  height: 25px;
+}
+
+.productFlexText {
+  display: flex;
+  text-align: center;
+  color: #723f22;
+  font-size: 14px;
+}

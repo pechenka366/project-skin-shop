@@ -2,6 +2,7 @@ import styles from "./Header.module.scss";
 import Cart from "../Cart/index";
 import { useState } from "react";
 import AuthModal from "../AuthModal/index";
+import { Link } from "react-router-dom";
 
 interface HeaderProps {
   onCartClick: () => void;
@@ -38,7 +39,9 @@ function Header({
 
       <header className={styles.header}>
         <div className={styles.headerContainer}>
-          <span className={styles.logo}>KOVAC</span>
+          <Link to="/">
+            <span className={styles.logo}>KOVAC</span>
+          </Link>
 
           <button
             className={`${styles.burger} ${isMobileMenuOpen ? styles.open : ""}`}
@@ -49,25 +52,43 @@ function Header({
             <span></span>
           </button>
 
-          <nav className={`${styles.nav} ${isMobileMenuOpen ? styles.mobileOpen : ""}`}>
+          <nav
+            className={`${styles.nav} ${isMobileMenuOpen ? styles.mobileOpen : ""}`}
+          >
             <ul className={styles.navList}>
               <li className={styles.navItem}>
-                <a href="/" className={styles.navLink} onClick={() => setIsMobileMenuOpen(false)}>
+                <a
+                  href="/"
+                  className={styles.navLink}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
                   Каталог
                 </a>
               </li>
               <li className={styles.navItem}>
-                <a href="#" className={styles.navLink} onClick={() => setIsMobileMenuOpen(false)}>
+                <a
+                  href="#"
+                  className={styles.navLink}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
                   О нас
                 </a>
               </li>
               <li className={styles.navItem}>
-                <a href="#" className={styles.navLink} onClick={() => setIsMobileMenuOpen(false)}>
+                <a
+                  href="#"
+                  className={styles.navLink}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
                   Мастерская
                 </a>
               </li>
               <li className={styles.navItem}>
-                <a href="#" className={styles.navLink} onClick={() => setIsMobileMenuOpen(false)}>
+                <a
+                  href="#"
+                  className={styles.navLink}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
                   Контакты
                 </a>
               </li>
@@ -97,7 +118,13 @@ function Header({
           </nav>
 
           <div className={styles.icons}>
-            <img src="/img/magnifier.svg" alt="magnifier" width={28} height={28} className={styles.icon} />
+            <img
+              src="/img/magnifier.svg"
+              alt="magnifier"
+              width={28}
+              height={28}
+              className={styles.icon}
+            />
             <div className={styles.cartWrapper}>
               <img
                 src="/img/bag.svg"

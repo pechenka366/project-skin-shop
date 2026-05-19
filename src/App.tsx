@@ -2,23 +2,27 @@ import About from "./components/About";
 import Header from "./components/Header";
 import Main from "./components/Main";
 import Catalog from "./components/Catalog";
-import MaterialsBlock from "./components/materialsBlock";
+import MaterialsBlock from "./components/MaterialsBlock";
 import TraditionBlock from "./components/TraditionBlock";
 import InfoBlock from "./components/InfoBlock";
 import Notification from "./components/Notification";
 import Footer from "./components/Footer";
+import AuthSuccess from "./components/AuthSuccess";
+import ProductInfo from "./components/ProductInfo";
 import "./style/resert.css";
 import "./App.css";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import type { Product, CartItem, NotificationState } from "./types";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 function App() {
+  const [isLoading, setIsLoading] = useState(true);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [notifications, setNotifications] = useState<NotificationState[]>([]);
-  const API = import.meta.env.VITE_API_URL;
+  const API = "http://localhost:5000";
   const [user, setUser] = useState<{
     _id: string;
     name: string;
@@ -38,11 +42,25 @@ function App() {
   };
 
   useEffect(() => {
+    setIsLoading(true);
     axios
-      .get(`${import.meta.env.VITE_API_URL}/api/products`)
-      .then((response) => setProducts(response.data))
-      .catch((error) => console.error("Ошибка загрузки товаров:", error));
-  }, []);
+      .get(`${API}/api/products`)
+      .then((response) => {
+        const data = response.data;
+        if (Array.isArray(data)) {
+          setProducts(data);
+        } else {
+          console.error("API вернул не массив:", data);
+          setProducts([]);
+        }
+        setIsLoading(false);
+      })
+      .catch((error) => {
+        console.error("Ошибка загрузки товаров:", error);
+        setProducts([]);
+        setIsLoading(false);
+      });
+  }, [API]);
 
   useEffect(() => {
     if (user?._id) {
@@ -51,13 +69,23 @@ function App() {
         .then((response) => setCartItems(response.data))
         .catch((error) => console.error("Ошибка загрузки корзины:", error));
     }
-  }, [user]);
+  }, [user, API]);
 
   useEffect(() => {
     const savedUser = localStorage.getItem("user");
     if (savedUser) {
       setUser(JSON.parse(savedUser));
     }
+  }, []);
+
+  useEffect(() => {
+    const handleUserLogin = (event: CustomEvent) => {
+      setUser(event.detail);
+    };
+    window.addEventListener("userLogin", handleUserLogin as EventListener);
+    return () => {
+      window.removeEventListener("userLogin", handleUserLogin as EventListener);
+    };
   }, []);
 
   const handleLogin = (userData: {
@@ -140,7 +168,7 @@ function App() {
   };
 
   return (
-    <>
+    <BrowserRouter>
       <div className="notifications-container">
         {notifications.map((notif) => (
           <Notification
@@ -151,7 +179,6 @@ function App() {
           />
         ))}
       </div>
-
       <Header
         onCartClick={() => setIsCartOpen(!isCartOpen)}
         isCartOpen={isCartOpen}
@@ -161,14 +188,29 @@ function App() {
         onLogout={handleLogout}
         onLogin={handleLogin}
       />
-      <Main />
-      <About />
-      <Catalog products={products} onAddToCart={addToCart} />
-      <MaterialsBlock />
-      <InfoBlock />
-      <TraditionBlock />
-      <Footer />
-    </>
+      <Routes>
+        <Route
+          path="/"
+          element={
+            <>
+              <Main />
+              <About />
+              <Catalog
+                products={products}
+                onAddToCart={addToCart}
+                isLoading={isLoading}
+              />
+              <MaterialsBlock />
+              <InfoBlock />
+              <TraditionBlock />
+              <Footer />
+            </>
+          }
+        />
+        <Route path="/auth-success" element={<AuthSuccess />} />
+        <Route path="/product/:id" element={<ProductInfo />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 
