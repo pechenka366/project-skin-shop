@@ -1,17 +1,18 @@
+import { useState } from "react";
+import { Link } from "react-router-dom";
 import styles from "./Header.module.scss";
 import Cart from "../Cart/index";
-import { useState } from "react";
 import AuthModal from "../AuthModal/index";
-import { Link } from "react-router-dom";
+import { LogOut, UserCircle } from "lucide-react";
 
 interface HeaderProps {
   onCartClick: () => void;
   isCartOpen: boolean;
   cartItems: any[];
   onRemoveFromCart: (id: string) => void;
-  user: { _id: string; name: string; email: string } | null;
+  user: { _id: string; name: string; email: string; avatar?: string } | null;
   onLogout: () => void;
-  onLogin: (userData: { _id: string; name: string; email: string }) => void;
+  onLogin: (userData: { _id: string; name: string; email: string; avatar?: string }) => void;
 }
 
 function Header({
@@ -25,6 +26,11 @@ function Header({
 }: HeaderProps) {
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+
+  const getInitial = (name: string) => {
+    return name ? name.charAt(0).toUpperCase() : "?";
+  };
 
   return (
     <>
@@ -57,13 +63,13 @@ function Header({
           >
             <ul className={styles.navList}>
               <li className={styles.navItem}>
-                <a
-                  href="/"
+                <Link
+                  to="/"
                   className={styles.navLink}
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   Каталог
-                </a>
+                </Link>
               </li>
               <li className={styles.navItem}>
                 <a
@@ -97,6 +103,17 @@ function Header({
               <div className={styles.userWrapper}>
                 {user ? (
                   <div className={styles.userMenu}>
+                    {user.avatar ? (
+                      <img
+                        src={user.avatar}
+                        alt={user.name}
+                        className={styles.userAvatar}
+                      />
+                    ) : (
+                      <div className={styles.userAvatar}>
+                        {getInitial(user.name)}
+                      </div>
+                    )}
                     <span className={styles.userName}>{user.name}</span>
                     <button onClick={onLogout} className={styles.logoutBtn}>
                       Выйти
@@ -149,13 +166,38 @@ function Header({
                 </div>
               )}
             </div>
+
             <div className={styles.userWrapperDesktop}>
               {user ? (
-                <div className={styles.userMenu}>
-                  <span className={styles.userName}>{user.name}</span>
-                  <button onClick={onLogout} className={styles.logoutBtn}>
-                    Выйти
-                  </button>
+                <div
+                  className={styles.userMenuDesktop}
+                  onMouseEnter={() => setIsUserMenuOpen(true)}
+                  onMouseLeave={() => setIsUserMenuOpen(false)}
+                >
+                  {user.avatar ? (
+                    <img
+                      src={user.avatar}
+                      alt={user.name}
+                      className={styles.userAvatarDesktop}
+                    />
+                  ) : (
+                    <div className={styles.userAvatarDesktop}>
+                      {getInitial(user.name)}
+                    </div>
+                  )}
+                  <span className={styles.userNameDesktop}>{user.name}</span>
+                  {isUserMenuOpen && (
+                    <div className={styles.dropdownMenu}>
+                      <Link to="/profile" className={styles.dropdownItem}>
+                        <UserCircle size={18} />
+                        <span>Профиль</span>
+                      </Link>
+                      <button onClick={onLogout} className={styles.dropdownItem}>
+                        <LogOut size={18} />
+                        <span>Выйти</span>
+                      </button>
+                    </div>
+                  )}
                 </div>
               ) : (
                 <img

@@ -18,6 +18,8 @@
 .productOur {
   display: flex;
   justify-content: space-between;
+  padding-bottom: 30px;
+  border-bottom: 1px solid rgb(224, 213, 202);
 }
 
 .productImageArrow {
@@ -110,11 +112,14 @@
 .productFlex {
   display: flex;
   justify-content: space-between;
+  padding-bottom: 40px;
+  border-bottom: 1px solid rgb(224, 213, 202);
 }
 
 .productFlexClass {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
   width: 180px;
   padding: 20px;
   background-color: rgb(233, 222, 210);
@@ -122,16 +127,143 @@
 }
 
 .productFlexImage {
-  display: flex;
   color: #653e6e;
-  justify-content: center;
   width: 25px;
   height: 25px;
+  padding-bottom: 5px;
 }
 
 .productFlexText {
-  display: flex;
-  text-align: center;
   color: #723f22;
   font-size: 14px;
+}
+
+.productPeculiarities {
+  padding-top: 50px;
+  padding-bottom: 15px;
+}
+
+.productPeculiaritiesInfo {
+  font-size: 18px;
+  padding-bottom: 20px;
+}
+
+.productPeculiaritiesLi {
+  display: flex;
+  padding-bottom: 15px;
+}
+
+.productPeculiaritiesImage {
+  color: #653e6e;
+  width: 20px;
+  height: 20px;
+}
+
+.productPeculiaritiesText {
+  font-size: 16px;
+  color: #723f22;
+  padding-left: 5px;
+}
+
+.productMaterials {
+  padding-bottom: 15px;
+}
+
+.productMaterialis {
+  display: flex;
+}
+
+.productMaterialInfo {
+  font-size: 18px;
+  padding-bottom: 20px;
+}
+
+.productMaterial {
+  padding: 10px;
+  background-color: #e9deda;
+  color: #82578b;
+  font-size: 16px;
+  border-radius: 20px;
+  border: 1px solid #c5b7b2;
+  margin-right: 10px;
+}
+
+.productSizeName {
+  font-size: 18px;
+  padding-bottom: 20px;
+}
+
+.productSizeText {
+  font-size: 16px;
+  color: #723f22;
+}
+
+.productBottomName {
+  padding-top: 40px;
+  padding-bottom: 20px;
+}
+
+.productBottomNames {
+  font-size: 40px;
+  font-weight: 400;
+  text-align: center;
+}
+
+.productGallery {
+  width: 100%;
+  max-width: 1472px;
+  margin: 40px auto 0;
+  padding: 0 20px;
+  padding-bottom: 40px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 30px;
+  box-sizing: border-box;
+
+  @media (max-width: 1200px) {
+    gap: 20px;
+  }
+
+  @media (max-width: 1024px) {
+    display: flex;
+    overflow-x: auto;
+    gap: 20px;
+    padding: 0 20px 20px 20px;
+    scroll-snap-type: x mandatory;
+
+    &::-webkit-scrollbar {
+      height: 4px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: #e0d4cd;
+      border-radius: 2px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: #8d6a96;
+      border-radius: 2px;
+    }
+
+    & > * {
+      flex: 0 0 auto;
+      width: 300px;
+      scroll-snap-align: start;
+    }
+  }
+
+  @media (max-width: 768px) {
+    gap: 16px;
+    padding: 0 16px 16px 16px;
+
+    & > * {
+      width: 280px;
+    }
+  }
+
+  @media (max-width: 576px) {
+    & > * {
+      width: 260px;
+    }
+  }
 }

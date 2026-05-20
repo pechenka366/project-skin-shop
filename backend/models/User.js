@@ -14,9 +14,8 @@ const userSchema = new mongoose.Schema({
   googleId: String,
   vkId: String,
   yandexId: String,
-
-  avatar: String,
-
+  avatar: { type: String, default: "" },
+  phone: { type: String, default: "" },
   provider: String,
 
   createdAt: {
@@ -25,7 +24,4 @@ const userSchema = new mongoose.Schema({
   },
 });
 
-export default mongoose.model(
-  "User",
-  userSchema
-);
+export default mongoose.model("User", userSchema);

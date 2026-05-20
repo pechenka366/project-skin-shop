@@ -1,13 +1,18 @@
 import { useState } from "react";
 import axios from "axios";
 import { FcGoogle } from "react-icons/fc";
-import { FaYandex, FaVk } from "react-icons/fa";
+import { FaYandex } from "react-icons/fa";
 import styles from "./AuthModal.module.scss";
 
 interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onLogin: (userData: { _id: string; name: string; email: string }) => void;
+  onLogin: (userData: {
+    _id: string;
+    name: string;
+    email: string;
+    avatar?: string;
+  }) => void;
 }
 
 function AuthModal({ isOpen, onClose, onLogin }: AuthModalProps) {
@@ -17,7 +22,9 @@ function AuthModal({ isOpen, onClose, onLogin }: AuthModalProps) {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const API = "http://localhost:5000";
+
+  // const API_URL = 'https://bahtarma.ru';
+  const API_URL = "http://localhost:5000";
 
   const handleSwitchMode = () => {
     setIsLogin(!isLogin);
@@ -42,7 +49,7 @@ function AuthModal({ isOpen, onClose, onLogin }: AuthModalProps) {
 
     try {
       if (isLogin) {
-        const response = await axios.post(`${API}/api/login`, {
+        const response = await axios.post(`${API_URL}/api/login`, {
           email,
           password,
         });
@@ -51,10 +58,11 @@ function AuthModal({ isOpen, onClose, onLogin }: AuthModalProps) {
           _id: response.data.user._id,
           name: response.data.user.name,
           email: response.data.user.email,
+          avatar: response.data.user.avatar || "",
         });
         onClose();
       } else {
-        const response = await axios.post(`${API}/api/register`, {
+        const response = await axios.post(`${API_URL}/api/register`, {
           name,
           email,
           password,
@@ -79,7 +87,7 @@ function AuthModal({ isOpen, onClose, onLogin }: AuthModalProps) {
   };
 
   const handleSocialLogin = (provider: string) => {
-    window.location.href = `${API}/auth/${provider}`;
+    window.location.href = `${API_URL}/auth/${provider}`;
   };
 
   if (!isOpen) return null;
@@ -143,14 +151,14 @@ function AuthModal({ isOpen, onClose, onLogin }: AuthModalProps) {
                   <FaYandex size={24} color="#FC3F1D" />
                 </button>
 
-                <button
+                {/* <button
                   type="button"
-                  onClick={() => handleSocialLogin("vkontakte")}
+                  onClick={() => handleSocialLogin("vk")}
                   className={styles.socialBtn}
                   aria-label="Войти через ВКонтакте"
                 >
                   <FaVk size={24} color="#0077FF" />
-                </button>
+                </button> */}
               </div>
 
               <p className={styles.switchText}>
@@ -222,14 +230,14 @@ function AuthModal({ isOpen, onClose, onLogin }: AuthModalProps) {
                   <FaYandex size={24} color="#FC3F1D" />
                 </button>
 
-                <button
+                {/* <button
                   type="button"
-                  onClick={() => handleSocialLogin("vkontakte")}
+                  onClick={() => handleSocialLogin("vk")}
                   className={styles.socialBtn}
                   aria-label="Зарегистрироваться через ВКонтакте"
                 >
                   <FaVk size={24} color="#0077FF" />
-                </button>
+                </button> */}
               </div>
 
               <p className={styles.switchText}>

@@ -9,11 +9,12 @@ import Notification from "./components/Notification";
 import Footer from "./components/Footer";
 import AuthSuccess from "./components/AuthSuccess";
 import ProductInfo from "./components/ProductInfo";
+import Profile from "./components/Profile";
 import "./style/resert.css";
 import "./App.css";
 import { useEffect, useState } from "react";
 import axios from "axios";
-import type { Product, CartItem, NotificationState } from "./types";
+import type { Product, CartItem, NotificationState, User } from "./types";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 function App() {
@@ -23,11 +24,7 @@ function App() {
   const [products, setProducts] = useState<Product[]>([]);
   const [notifications, setNotifications] = useState<NotificationState[]>([]);
   const API = "http://localhost:5000";
-  const [user, setUser] = useState<{
-    _id: string;
-    name: string;
-    email: string;
-  } | null>(null);
+  const [user, setUser] = useState<User | null>(null);
 
   const showNotification = (
     message: string,
@@ -88,11 +85,7 @@ function App() {
     };
   }, []);
 
-  const handleLogin = (userData: {
-    _id: string;
-    name: string;
-    email: string;
-  }) => {
+  const handleLogin = (userData: User) => {
     setUser(userData);
     localStorage.setItem("user", JSON.stringify(userData));
   };
@@ -179,6 +172,7 @@ function App() {
           />
         ))}
       </div>
+
       <Header
         onCartClick={() => setIsCartOpen(!isCartOpen)}
         isCartOpen={isCartOpen}
@@ -188,7 +182,9 @@ function App() {
         onLogout={handleLogout}
         onLogin={handleLogin}
       />
+
       <Routes>
+        <Route path="/profile" element={<Profile />} />
         <Route
           path="/"
           element={
@@ -203,13 +199,22 @@ function App() {
               <MaterialsBlock />
               <InfoBlock />
               <TraditionBlock />
-              <Footer />
             </>
           }
         />
         <Route path="/auth-success" element={<AuthSuccess />} />
-        <Route path="/product/:id" element={<ProductInfo />} />
+        <Route
+          path="/product/:id"
+          element={
+            <ProductInfo
+              products={products}
+              onAddToCart={addToCart}
+              isLoading={isLoading}
+            />
+          }
+        />
       </Routes>
+      <Footer />
     </BrowserRouter>
   );
 }

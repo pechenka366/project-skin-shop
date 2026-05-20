@@ -1,4 +1,4 @@
-import dotenv from 'dotenv';
+import dotenv from "dotenv";
 dotenv.config();
 
 import express from "express";
@@ -44,6 +44,18 @@ const isValidEmail = (email) => {
   const emailRegex = /^[^\s@]+@([^\s@.,]+\.)+[^\s@.,]{2,}$/;
   return emailRegex.test(email);
 };
+
+app.get("/api/products/:id", async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id);
+    if (!product) {
+      return res.status(404).json({ message: "Товар не найден" });
+    }
+    res.json(product);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
 
 app.get("/api/products", async (req, res) => {
   const products = await Product.find();
@@ -120,7 +132,7 @@ app.post("/api/register", async (req, res) => {
 
     res.status(201).json({
       message: "Регистрация успешна",
-      user: { _id: user._id, name: user.name, email: user.email },
+      user: { _id: user._id, name: user.name, email: user.email, avatar: user.avatar || "" },
     });
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -143,7 +155,7 @@ app.post("/api/login", async (req, res) => {
 
     res.json({
       message: "Вход успешен",
-      user: { _id: user._id, name: user.name, email: user.email },
+      user: { _id: user._id, name: user.name, email: user.email, avatar: user.avatar || "" },
     });
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -152,64 +164,97 @@ app.post("/api/login", async (req, res) => {
 
 app.get(
   "/auth/google",
-
   passport.authenticate("google", {
     scope: ["profile", "email"],
-  })
+  }),
 );
 
 app.get(
   "/auth/google/callback",
+  passport.authenticate("google", { session: false }),
+  async (req, res) => {
+    const user = req.user;
+    res.redirect(
+      `https://bahtarma.ru/auth-success?id=${user._id}&name=${encodeURIComponent(user.name)}&email=${user.email}`,
+    );
+  },
+);
 
-  passport.authenticate("google", {
+app.get("/auth/vk", passport.authenticate("vkontakte"));
+
+app.get(
+  "/auth/vk/callback",
+  passport.authenticate("vkontakte", { failureRedirect: "/login" }),
+  async (req, res) => {
+    const user = req.user;
+    res.redirect(
+      `https://bahtarma.ru/auth-success?id=${user._id}&name=${encodeURIComponent(user.name)}&email=${user.email}`,
+    );
+  },
+);
+
+app.get("/auth/yandex", passport.authenticate("yandex"));
+
+app.get(
+  "/auth/yandex/callback",
+  passport.authenticate("yandex", {
     session: false,
+    failureRedirect: "/login",
   }),
-
-  async (req, res) => {
-    const user = req.user;
-
-    res.redirect(
-      `http://localhost:5173/auth-success?` +
-      `id=${user._id}&` +
-      `name=${encodeURIComponent(user.name)}&` +
-      `email=${user.email}`
-    );
-  }
-);
-
-app.get('/auth/vk',
-  passport.authenticate('vkontakte')
-);
-
-app.get('/auth/vk/callback',
-  passport.authenticate('vkontakte', { session: false, failureRedirect: '/login' }),
   async (req, res) => {
     const user = req.user;
     res.redirect(
-      `http://localhost:5173/auth-success?` +
-      `id=${user._id}&` +
-      `name=${encodeURIComponent(user.name)}&` +
-      `email=${user.email}`
+      `https://bahtarma.ru/auth-success?id=${user._id}&name=${encodeURIComponent(user.name)}&email=${user.email}`,
     );
-  }
+  },
 );
 
-app.get('/auth/yandex',
-  passport.authenticate('yandex')
-);
+app.put("/api/users/:userId", async (req, res) => {
+  try {
+    const { name, email, phone } = req.body;
+    const user = await User.findById(req.params.userId);
+    
+    if (!user) {
+      return res.status(404).json({ message: "Пользователь не найден" });
+    }
 
-app.get('/auth/yandex/callback',
-  passport.authenticate('yandex', { session: false, failureRedirect: '/login' }),
-  async (req, res) => {
-    const user = req.user;
-    res.redirect(
-      `http://localhost:5173/auth-success?` +
-      `id=${user._id}&` +
-      `name=${encodeURIComponent(user.name)}&` +
-      `email=${user.email}`
-    );
+    user.name = name || user.name;
+    user.email = email || user.email;
+    user.phone = phone || user.phone;
+    
+    await user.save();
+    
+    res.json({
+      message: "Профиль обновлён",
+      user: { _id: user._id, name: user.name, email: user.email, phone: user.phone, avatar: user.avatar }
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
-);
+});
+
+app.put("/api/users/:userId/password", async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    const user = await User.findById(req.params.userId);
+    
+    if (!user) {
+      return res.status(404).json({ message: "Пользователь не найден" });
+    }
+
+    const isValid = await bcrypt.compare(currentPassword, user.password);
+    if (!isValid) {
+      return res.status(400).json({ message: "Неверный текущий пароль" });
+    }
+
+    user.password = await bcrypt.hash(newPassword, 10);
+    await user.save();
+    
+    res.json({ message: "Пароль успешно изменён" });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, "0.0.0.0", () => {

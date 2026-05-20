@@ -46,7 +46,7 @@ function Main() {
       backgroundColor="#e0e0e0"
       foregroundColor="#f5f5f5"
     >
-      <rect x="0" y="0" rx="10" ry="" width="320" height={height} />
+      <rect x="0" y="0" rx="10" ry="10" width="320" height={height} />
     </ContentLoader>
   );
 
