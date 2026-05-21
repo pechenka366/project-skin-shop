@@ -31,7 +31,8 @@ function ProductInfo({ products, onAddToCart, isLoading }: CatalogProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const API_URL = "http://localhost:5000"
+  // const API_URL = "https://bahtarma.ru"
+  const API_URL = "http://localhost:5000";
 
   useEffect(() => {
     if (!id) {

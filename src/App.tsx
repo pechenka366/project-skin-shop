@@ -23,6 +23,7 @@ function App() {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [notifications, setNotifications] = useState<NotificationState[]>([]);
+  // const API = 'https://bahtarma.ru';
   const API = "http://localhost:5000";
   const [user, setUser] = useState<User | null>(null);
 

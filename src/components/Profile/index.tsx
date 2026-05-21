@@ -27,9 +27,8 @@ function Profile() {
     confirmPassword: "",
   });
 
-  const API_URL = window.location.hostname === 'localhost' 
-    ? 'http://localhost:5000' 
-    : 'https://bahtarma.ru';
+  // const API_URL = 'https://bahtarma.ru';
+  const API_URL = "http://localhost:5000";
 
   useEffect(() => {
     const savedUser = localStorage.getItem("user");
@@ -51,7 +50,6 @@ function Profile() {
     setLoading(false);
   }, [navigate]);
 
-  // ✅ Добавить функцию handleChange
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
       ...formData,
@@ -65,14 +63,14 @@ function Profile() {
     setMessage(null);
 
     try {
-      const response = await axios.put(
-        `${API_URL}/api/users/${user?._id}`,
-        {
-          name: formData.name,
-          email: formData.email,
-          phone: formData.phone,
-        }
-      );
+      // const response = await axios.put(
+      //   `${API_URL}/api/users/${user?._id}`,
+      //   {
+      //     name: formData.name,
+      //     email: formData.email,
+      //     phone: formData.phone,
+      //   }
+      // );
 
       const updatedUser: User = {
         _id: user!._id,
