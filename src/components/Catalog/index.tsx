@@ -1,13 +1,6 @@
 import styles from "./Catalog.module.scss";
 import Card from "../Card";
-
-interface Product {
-  _id: string;
-  name: string;
-  title: string;
-  price: number;
-  img: string;
-}
+import type { Product } from "../../types"; 
 
 interface CatalogProps {
   products: Product[];
@@ -27,7 +20,7 @@ function Catalog({ products, onAddToCart, isLoading }: CatalogProps) {
         name={isLoading ? "" : product.name}
         title={isLoading ? "" : product.title}
         price={isLoading ? 0 : product.price}
-        image={isLoading ? "" : product.img}
+        image={isLoading ? "" : product.images?.[0] || ""}
         onAddToCart={() => {
           if (!isLoading) onAddToCart(product);
         }}

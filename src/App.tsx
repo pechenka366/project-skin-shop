@@ -10,6 +10,10 @@ import Footer from "./components/Footer";
 import AuthSuccess from "./components/AuthSuccess";
 import ProductInfo from "./components/ProductInfo";
 import Profile from "./components/Profile";
+import AdminLayout from "./components/Admin/AdminLayout";
+import AdminProducts from "./components/Admin/AdminProducts";
+import AdminUsers from "./components/Admin/AdminUsers";
+import AdminGuard from "./components/Admin/AdminGuard";
 import "./style/resert.css";
 import "./App.css";
 import { useEffect, useState } from "react";
@@ -23,8 +27,8 @@ function App() {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [notifications, setNotifications] = useState<NotificationState[]>([]);
-  // const API = 'https://bahtarma.ru';
-  const API = "http://localhost:5000";
+  const API =
+    window.location.hostname === "localhost" ? "http://localhost:5000" : "";
   const [user, setUser] = useState<User | null>(null);
 
   const showNotification = (
@@ -108,6 +112,8 @@ function App() {
       return;
     }
 
+    const imageUrl = product.images?.[0] || product.img || "";
+
     try {
       const response = await axios.post(`${API}/api/cart`, {
         userId: user._id,
@@ -115,7 +121,7 @@ function App() {
         name: product.name,
         title: product.title,
         price: product.price,
-        img: product.img,
+        img: imageUrl,
         quantity: 1,
       });
 
@@ -186,6 +192,20 @@ function App() {
 
       <Routes>
         <Route path="/profile" element={<Profile />} />
+
+        <Route
+          path="/admin/*"
+          element={
+            <AdminGuard user={user}>
+              <AdminLayout />
+            </AdminGuard>
+          }
+        >
+          <Route index element={<AdminProducts />} />
+          <Route path="products" element={<AdminProducts />} />
+          <Route path="users" element={<AdminUsers />} />
+        </Route>
+
         <Route
           path="/"
           element={
@@ -203,7 +223,9 @@ function App() {
             </>
           }
         />
+
         <Route path="/auth-success" element={<AuthSuccess />} />
+
         <Route
           path="/product/:id"
           element={
@@ -215,6 +237,7 @@ function App() {
           }
         />
       </Routes>
+
       <Footer />
     </BrowserRouter>
   );

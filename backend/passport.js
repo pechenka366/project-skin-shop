@@ -7,8 +7,10 @@ import { Strategy as VKStrategy } from "passport-vkontakte";
 import { Strategy as YandexStrategy } from "passport-yandex";
 import User from "./models/User.js";
 
-// const BASE_URL = 'https://bahtarma.ru';
-const BASE_URL = "http://localhost:5000";
+const BASE_URL =
+  process.env.NODE_ENV === "production"
+    ? "https://bahtarma.ru"
+    : "http://localhost:5000";
 
 console.log("Google Client ID:", process.env.GOOGLE_CLIENT_ID);
 

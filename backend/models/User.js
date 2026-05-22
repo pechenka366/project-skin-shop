@@ -14,14 +14,18 @@ const userSchema = new mongoose.Schema({
   googleId: String,
   vkId: String,
   yandexId: String,
-  avatar: { type: String, default: "" },
-  phone: { type: String, default: "" },
-  provider: String,
 
+  avatar: String,
+
+  provider: String,
+  role: { type: String, enum: ['user', 'admin'], default: 'user' },
   createdAt: {
     type: Date,
     default: Date.now,
   },
 });
 
-export default mongoose.model("User", userSchema);
+export default mongoose.model(
+  "User",
+  userSchema
+);

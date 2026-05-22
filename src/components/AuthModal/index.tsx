@@ -11,20 +11,25 @@ interface AuthModalProps {
     _id: string;
     name: string;
     email: string;
+    phone?: string;
     avatar?: string;
+    role?: string;
   }) => void;
 }
 
 function AuthModal({ isOpen, onClose, onLogin }: AuthModalProps) {
   const [isLogin, setIsLogin] = useState(true);
+  const [loginType, setLoginType] = useState<"email" | "phone">("email");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  // const API_URL = 'https://bahtarma.ru';
-  const API_URL = "http://localhost:5000";
+  const API_URL = window.location.hostname === 'localhost' 
+    ? 'http://localhost:5000' 
+    : 'https://bahtarma.ru';
 
   const handleSwitchMode = () => {
     setIsLogin(!isLogin);
@@ -36,35 +41,66 @@ function AuthModal({ isOpen, onClose, onLogin }: AuthModalProps) {
     return emailRegex.test(email);
   };
 
+  const validatePhone = (phone: string) => {
+    const phoneRegex = /^(\+7|7|8)?[\s\-]?\(?[0-9]{3}\)?[\s\-]?[0-9]{3}[\s\-]?[0-9]{2}[\s\-]?[0-9]{2}$/;
+    return phoneRegex.test(phone);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     setIsLoading(true);
 
-    if (!isLogin && !validateEmail(email)) {
-      setError("Введите корректный email (пример: name@mail.ru)");
-      setIsLoading(false);
-      return;
+    if (!isLogin) {
+      // Регистрация
+      if (email && !validateEmail(email)) {
+        setError("Введите корректный email (пример: name@mail.ru)");
+        setIsLoading(false);
+        return;
+      }
+      if (phone && !validatePhone(phone)) {
+        setError("Введите корректный номер телефона (пример: +79123456789)");
+        setIsLoading(false);
+        return;
+      }
+    } else {
+      // Вход
+      if (loginType === "email" && !email) {
+        setError("Введите email");
+        setIsLoading(false);
+        return;
+      }
+      if (loginType === "phone" && !phone) {
+        setError("Введите номер телефона");
+        setIsLoading(false);
+        return;
+      }
     }
 
     try {
       if (isLogin) {
-        const response = await axios.post(`${API_URL}/api/login`, {
-          email,
-          password,
-        });
+        // Вход
+        const loginData = loginType === "email" 
+          ? { email, password }
+          : { phone, password };
+        
+        const response = await axios.post(`${API_URL}/api/login`, loginData);
 
         onLogin({
           _id: response.data.user._id,
           name: response.data.user.name,
           email: response.data.user.email,
+          phone: response.data.user.phone,
           avatar: response.data.user.avatar || "",
+          role: response.data.user.role || "user",
         });
         onClose();
       } else {
+        // Регистрация
         const response = await axios.post(`${API_URL}/api/register`, {
           name,
           email,
+          phone,
           password,
         });
 
@@ -72,12 +108,16 @@ function AuthModal({ isOpen, onClose, onLogin }: AuthModalProps) {
           _id: response.data.user._id,
           name: response.data.user.name,
           email: response.data.user.email,
+          phone: response.data.user.phone,
+          avatar: response.data.user.avatar || "",
+          role: response.data.user.role || "user",
         });
         onClose();
       }
 
       setName("");
       setEmail("");
+      setPhone("");
       setPassword("");
     } catch (err: any) {
       setError(err.response?.data?.message || "Произошла ошибка");
@@ -101,17 +141,47 @@ function AuthModal({ isOpen, onClose, onLogin }: AuthModalProps) {
 
         <div className={styles.cardContainer}>
           <div className={`${styles.card} ${!isLogin ? styles.flipped : ""}`}>
+            {/* ФОРМА ВХОДА */}
             <div className={styles.cardFront}>
               <h2>Вход</h2>
               {error && <div className={styles.error}>{error}</div>}
+              
+              {/* Переключатель email/phone */}
+              <div className={styles.loginTypeSwitch}>
+                <button
+                  type="button"
+                  className={`${styles.typeBtn} ${loginType === "email" ? styles.active : ""}`}
+                  onClick={() => setLoginType("email")}
+                >
+                  По email
+                </button>
+                <button
+                  type="button"
+                  className={`${styles.typeBtn} ${loginType === "phone" ? styles.active : ""}`}
+                  onClick={() => setLoginType("phone")}
+                >
+                  По телефону
+                </button>
+              </div>
+              
               <form onSubmit={handleSubmit}>
-                <input
-                  type="email"
-                  placeholder="Email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                />
+                {loginType === "email" ? (
+                  <input
+                    type="email"
+                    placeholder="Email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                  />
+                ) : (
+                  <input
+                    type="tel"
+                    placeholder="Номер телефона"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    required
+                  />
+                )}
                 <input
                   type="password"
                   placeholder="Пароль"
@@ -141,7 +211,6 @@ function AuthModal({ isOpen, onClose, onLogin }: AuthModalProps) {
                 >
                   <FcGoogle size={28} />
                 </button>
-
                 <button
                   type="button"
                   onClick={() => handleSocialLogin("yandex")}
@@ -150,15 +219,6 @@ function AuthModal({ isOpen, onClose, onLogin }: AuthModalProps) {
                 >
                   <FaYandex size={24} color="#FC3F1D" />
                 </button>
-
-                {/* <button
-                  type="button"
-                  onClick={() => handleSocialLogin("vk")}
-                  className={styles.socialBtn}
-                  aria-label="Войти через ВКонтакте"
-                >
-                  <FaVk size={24} color="#0077FF" />
-                </button> */}
               </div>
 
               <p className={styles.switchText}>
@@ -173,6 +233,7 @@ function AuthModal({ isOpen, onClose, onLogin }: AuthModalProps) {
               </p>
             </div>
 
+            {/* ФОРМА РЕГИСТРАЦИИ */}
             <div className={styles.cardBack}>
               <h2>Регистрация</h2>
               {error && <div className={styles.error}>{error}</div>}
@@ -186,10 +247,15 @@ function AuthModal({ isOpen, onClose, onLogin }: AuthModalProps) {
                 />
                 <input
                   type="email"
-                  placeholder="Email"
+                  placeholder="Email (необязательно)"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  required
+                />
+                <input
+                  type="tel"
+                  placeholder="Телефон (необязательно)"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
                 />
                 <input
                   type="password"
@@ -220,7 +286,6 @@ function AuthModal({ isOpen, onClose, onLogin }: AuthModalProps) {
                 >
                   <FcGoogle size={28} />
                 </button>
-
                 <button
                   type="button"
                   onClick={() => handleSocialLogin("yandex")}
@@ -229,15 +294,6 @@ function AuthModal({ isOpen, onClose, onLogin }: AuthModalProps) {
                 >
                   <FaYandex size={24} color="#FC3F1D" />
                 </button>
-
-                {/* <button
-                  type="button"
-                  onClick={() => handleSocialLogin("vk")}
-                  className={styles.socialBtn}
-                  aria-label="Зарегистрироваться через ВКонтакте"
-                >
-                  <FaVk size={24} color="#0077FF" />
-                </button> */}
               </div>
 
               <p className={styles.switchText}>

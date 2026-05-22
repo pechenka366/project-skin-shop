@@ -9,14 +9,7 @@ import { Check as ProductCheck } from "lucide-react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import axios from "axios";
-
-interface Product {
-  _id: string;
-  name: string;
-  title: string;
-  price: number;
-  img: string;
-}
+import type { Product } from "../../types";
 
 interface CatalogProps {
   products: Product[];
@@ -30,9 +23,11 @@ function ProductInfo({ products, onAddToCart, isLoading }: CatalogProps) {
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [mainImage, setMainImage] = useState<string>("");
 
-  // const API_URL = "https://bahtarma.ru"
-  const API_URL = "http://localhost:5000";
+  const API_URL = window.location.hostname === 'localhost' 
+    ? 'http://localhost:5000' 
+    : 'https://bahtarma.ru';
 
   useEffect(() => {
     if (!id) {
@@ -44,7 +39,10 @@ function ProductInfo({ products, onAddToCart, isLoading }: CatalogProps) {
     axios
       .get(`${API_URL}/api/products/${id}`)
       .then((response) => {
-        setProduct(response.data);
+        const productData = response.data;
+        setProduct(productData);
+        const firstImage = productData.images?.[0] || productData.img || "";
+        setMainImage(firstImage);
         setLoading(false);
       })
       .catch((err) => {
@@ -54,6 +52,10 @@ function ProductInfo({ products, onAddToCart, isLoading }: CatalogProps) {
       });
   }, [id, API_URL, navigate]);
 
+  const handleImageClick = (imageUrl: string) => {
+    setMainImage(imageUrl);
+  };
+
   if (loading) {
     return <div className={styles.loading}>Загрузка...</div>;
   }
@@ -61,6 +63,8 @@ function ProductInfo({ products, onAddToCart, isLoading }: CatalogProps) {
   if (error || !product) {
     return <div className={styles.error}>{error || "Товар не найден"}</div>;
   }
+
+  const images = product.images?.length ? product.images : (product.img ? [product.img] : []);
 
   const renderItems = () => {
     const items = isLoading ? [...Array(6)] : products;
@@ -72,7 +76,7 @@ function ProductInfo({ products, onAddToCart, isLoading }: CatalogProps) {
         name={isLoading ? "" : product.name}
         title={isLoading ? "" : product.title}
         price={isLoading ? 0 : product.price}
-        image={isLoading ? "" : product.img}
+        image={isLoading ? "" : product.images?.[0] || product.img || ""}
         onAddToCart={() => {
           if (!isLoading) onAddToCart(product);
         }}
@@ -82,127 +86,110 @@ function ProductInfo({ products, onAddToCart, isLoading }: CatalogProps) {
   };
 
   return (
-    <>
-      <section className={styles.product}>
-        <div className={styles.productAbout}>
-          <div className={styles.productBack}>
-            <nav>
-              <Link to="/">
-                <button className={styles.productButtonBack}>
-                  <ProductArrow className={styles.productImageArrow} />
-                  <p className={styles.productBackText}>Вернуться к каталогу</p>
-                </button>
-              </Link>
-            </nav>
-          </div>
-          <div className={styles.productOur}>
-            <div className={styles.productLeft}>
-              <div className={styles.productLeftImage}>
-                <img
-                  className={styles.productBigImage}
-                  src={product.img}
-                  alt={product.name}
-                />
-              </div>
+    <section className={styles.product}>
+      <div className={styles.productAbout}>
+        <div className={styles.productBack}>
+          <nav>
+            <Link to="/">
+              <button className={styles.productButtonBack}>
+                <ProductArrow className={styles.productImageArrow} />
+                <p className={styles.productBackText}>Вернуться к каталогу</p>
+              </button>
+            </Link>
+          </nav>
+        </div>
+        <div className={styles.productOur}>
+          <div className={styles.productLeft}>
+            <div className={styles.productLeftImage}>
+              <img
+                className={styles.productBigImage}
+                src={mainImage}
+                alt={product.name}
+              />
+            </div>
+            {images.length > 1 && (
               <div className={styles.productLeftSmall}>
-                <img
-                  className={styles.productSmallImage}
-                  src={product.img}
-                  alt={product.name}
-                />
-                <img
-                  className={styles.productSmallImage}
-                  src={product.img}
-                  alt={product.name}
-                />
-                <img
-                  className={styles.productSmallImage}
-                  src={product.img}
-                  alt={product.name}
-                />
+                {images.map((img, idx) => (
+                  <img
+                    key={idx}
+                    className={styles.productSmallImage}
+                    src={img}
+                    alt={`${product.name} - ${idx + 1}`}
+                    onClick={() => handleImageClick(img)}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+          <div className={styles.productRight}>
+            <h1 className={styles.productBackpack}>{product.name}</h1>
+            <p className={styles.productPackInfo}>{product.title}</p>
+            <p className={styles.productPrice}>₽ {product.price.toLocaleString()}</p>
+            <p className={styles.productInfo}>
+              {product.description || "Функциональный кожаный рюкзак для работы и путешествий. Сочетает классический стиль с современной практичностью, предлагая достаточно места для ноутбука и личных вещей."}
+            </p>
+            <button 
+              className={styles.productButton}
+              onClick={() => onAddToCart(product)}
+            >
+              <ProductCart />
+              <p className={styles.productButtonText}>Добавить в корзину</p>
+            </button>
+            <div className={styles.productFlex}>
+              <div className={styles.productFlexClass}>
+                <ProductTruck className={styles.productFlexImage} />
+                <p className={styles.productFlexText}>Доставка 2-5 дней</p>
+              </div>
+              <div className={styles.productFlexClass}>
+                <ProductProtect className={styles.productFlexImage} />
+                <p className={styles.productFlexText}>Гарантия 2 года</p>
+              </div>
+              <div className={styles.productFlexClass}>
+                <ProductBox className={styles.productFlexImage} />
+                <p className={styles.productFlexText}>Подарочная упаковка</p>
               </div>
             </div>
-            <div className={styles.productRight}>
-              <h1 className={styles.productBackpack}>{product.name}</h1>
-              <p className={styles.productPackInfo}>
-                {product.title}
-              </p>
-              <p className={styles.productPrice}>₽ {product.price.toLocaleString()}</p>
-              <p className={styles.productInfo}>
-                Функциональный кожаный рюкзак для работы и путешествий. Сочетает
-                классический стиль с современной практичностью, предлагая
-                достаточно места для ноутбука и личных вещей.
-              </p>
-              <button className={styles.productButton}>
-                <ProductCart />
-                <p className={styles.productButtonText}>Добавить в корзину</p>
-              </button>
-              <div className={styles.productFlex}>
-                <div className={styles.productFlexClass}>
-                  <ProductTruck className={styles.productFlexImage} />
-                  <p className={styles.productFlexText}>Доставка 2-5 дней</p>
-                </div>
-                <div className={styles.productFlexClass}>
-                  <ProductProtect className={styles.productFlexImage} />
-                  <p className={styles.productFlexText}>Гарантия 2 года</p>
-                </div>
-                <div className={styles.productFlexClass}>
-                  <ProductBox className={styles.productFlexImage} />
-                  <p className={styles.productFlexText}>Подарочная упаковка</p>
-                </div>
-              </div>
+
+            {/* Особенности из БД */}
+            {product.features && product.features.length > 0 && (
               <div className={styles.productPeculiarities}>
                 <h1 className={styles.productPeculiaritiesInfo}>Особенности</h1>
-                <div className={styles.productPeculiaritiesLi}>
-                  <ProductCheck className={styles.productPeculiaritiesImage} />
-                  <p className={styles.productPeculiaritiesText}>
-                    Натуральная итальянская кожа высшего сорта
-                  </p>
-                </div>
-                <div className={styles.productPeculiaritiesLi}>
-                  <ProductCheck className={styles.productPeculiaritiesImage} />
-                  <p className={styles.productPeculiaritiesText}>
-                    Натуральная итальянская кожа высшего сорта
-                  </p>
-                </div>
-                <div className={styles.productPeculiaritiesLi}>
-                  <ProductCheck className={styles.productPeculiaritiesImage} />
-                  <p className={styles.productPeculiaritiesText}>
-                    Натуральная итальянская кожа высшего сорта
-                  </p>
-                </div>
-                <div className={styles.productPeculiaritiesLi}>
-                  <ProductCheck className={styles.productPeculiaritiesImage} />
-                  <p className={styles.productPeculiaritiesText}>
-                    Натуральная итальянская кожа высшего сорта
-                  </p>
-                </div>
+                {product.features.map((feature, idx) => (
+                  <div key={idx} className={styles.productPeculiaritiesLi}>
+                    <ProductCheck className={styles.productPeculiaritiesImage} />
+                    <p className={styles.productPeculiaritiesText}>{feature}</p>
+                  </div>
+                ))}
               </div>
+            )}
+            {product.materials && product.materials.length > 0 && (
               <div className={styles.productMaterials}>
                 <div className={styles.productMaterialName}>
                   <h1 className={styles.productMaterialInfo}>Материалы</h1>
                 </div>
                 <div className={styles.productMaterialis}>
-                  <p className={styles.productMaterial}>Натуральная кожа</p>
-                  <p className={styles.productMaterial}>Натуральная кожа</p>
-                  <p className={styles.productMaterial}>Натуральная кожа</p>
+                  {product.materials.map((material, idx) => (
+                    <p key={idx} className={styles.productMaterial}>{material}</p>
+                  ))}
                 </div>
               </div>
+            )}
+            {product.size && (
               <div className={styles.productSize}>
                 <h1 className={styles.productSizeName}>Размер</h1>
-                <p className={styles.productSizeText}>35 x 28 x 12 см</p>
+                <p className={styles.productSizeText}>{product.size}</p>
               </div>
-            </div>
-          </div>
-          <div className={styles.productBottom}>
-            <div className={styles.productBottomName}>
-              <h1 className={styles.productBottomNames}>Похожие товары</h1>
-            </div>
-            <div className={styles.productGallery}>{renderItems()}</div>
+            )}
           </div>
         </div>
-      </section>
-    </>
+        <div className={styles.productBottom}>
+          <div className={styles.productBottomName}>
+            <h1 className={styles.productBottomNames}>Похожие товары</h1>
+          </div>
+          <div className={styles.productGallery}>{renderItems()}</div>
+        </div>
+      </div>
+    </section>
   );
 }
 

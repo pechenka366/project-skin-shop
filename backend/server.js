@@ -7,6 +7,9 @@ import cors from "cors";
 import bcrypt from "bcryptjs";
 import passport from "./passport.js";
 import User from "./models/User.js";
+import multer from "multer";
+import path from "path";
+import { fileURLToPath } from "url";
 
 const app = express();
 app.use(cors());
@@ -20,11 +23,63 @@ mongoose
   .then(() => console.log("MongoDB connected"))
   .catch((err) => console.error("MongoDB error:", err));
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, path.join(__dirname, "../frontend/img/products/"));
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+    cb(null, "product-" + uniqueSuffix + path.extname(file.originalname));
+  },
+});
+
+const upload = multer({
+  storage: storage,
+  limits: { fileSize: 10 * 1024 * 1024 },
+});
+
+const isAdmin = async (req, res, next) => {
+  try {
+    const userId = req.query.userId || req.body.userId;
+
+    console.log("isAdmin проверка, userId:", userId);
+
+    if (!userId) {
+      console.log("userId не передан");
+      return res.status(401).json({ message: "Не авторизован" });
+    }
+
+    const user = await User.findById(userId);
+    console.log("Найден пользователь:", user?.email, "role:", user?.role);
+
+    if (!user || user.role !== "admin") {
+      console.log("Доступ запрещён: роль не admin");
+      return res.status(403).json({ message: "Доступ запрещён" });
+    }
+
+    console.log("Доступ разрешён");
+    next();
+  } catch (err) {
+    console.error("Ошибка в isAdmin:", err);
+    res.status(500).json({ message: err.message });
+  }
+};
+
 const productSchema = new mongoose.Schema({
-  name: String,
-  title: String,
-  price: Number,
-  img: String,
+  name: { type: String, default: "" },
+  title: { type: String, default: "" },
+  price: { type: Number, default: 0 },
+  images: [{ type: String }],
+  description: { type: String, default: "" },
+  category: { type: String, default: "" },
+  stock: { type: Number, default: 0 },
+  features: [{ type: String }],
+  materials: [{ type: String }],
+  size: { type: String, default: "" },
+  createdAt: { type: Date, default: Date.now },
 });
 
 const cartItemSchema = new mongoose.Schema({
@@ -45,6 +100,29 @@ const isValidEmail = (email) => {
   return emailRegex.test(email);
 };
 
+// Нормализация номера телефона к формату +7XXXXXXXXXX
+const normalizePhone = (phone) => {
+  if (!phone) return phone;
+  // Удаляем все пробелы, дефисы, скобки
+  let cleaned = phone.replace(/[\s\-\(\)]/g, "");
+
+  // Если номер начинается с 8, заменяем на +7
+  if (cleaned.startsWith("8")) {
+    cleaned = "+7" + cleaned.slice(1);
+  }
+  // Если номер начинается с 7 (без +), добавляем +
+  else if (cleaned.startsWith("7") && !cleaned.startsWith("+7")) {
+    cleaned = "+7" + cleaned.slice(1);
+  }
+  // Если номер начинается с 9 (10 цифр без кода страны)
+  else if (cleaned.length === 10 && /^\d{10}$/.test(cleaned)) {
+    cleaned = "+7" + cleaned;
+  }
+
+  return cleaned;
+};
+
+// ========== ПУБЛИЧНЫЕ МАРШРУТЫ ==========
 app.get("/api/products/:id", async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);
@@ -112,27 +190,52 @@ app.delete("/api/cart/:userId/:productId", async (req, res) => {
 
 app.post("/api/register", async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, phone, password } = req.body;
 
-    if (!isValidEmail(email)) {
+    let normalizedPhone = null;
+    if (phone) {
+      normalizedPhone = normalizePhone(phone);
+
+      const existingPhone = await User.findOne({ phone: normalizedPhone });
+      if (existingPhone) {
+        return res.status(400).json({
+          message: "Пользователь с таким номером телефона уже существует",
+        });
+      }
+    }
+
+    if (email && !isValidEmail(email)) {
       return res.status(400).json({ message: "Введите корректный email" });
     }
 
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      return res
-        .status(400)
-        .json({ message: "Пользователь с таким email уже существует" });
+    if (email) {
+      const existingEmail = await User.findOne({ email });
+      if (existingEmail) {
+        return res
+          .status(400)
+          .json({ message: "Пользователь с таким email уже существует" });
+      }
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-
-    const user = new User({ name, email, password: hashedPassword });
+    const user = new User({
+      name,
+      email,
+      phone: normalizedPhone,
+      password: hashedPassword,
+    });
     await user.save();
 
     res.status(201).json({
       message: "Регистрация успешна",
-      user: { _id: user._id, name: user.name, email: user.email, avatar: user.avatar || "" },
+      user: {
+        _id: user._id,
+        name: user.name,
+        email: user.email || "",
+        phone: user.phone || "",
+        avatar: user.avatar || "",
+        role: user.role || "user",
+      },
     });
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -141,9 +244,17 @@ app.post("/api/register", async (req, res) => {
 
 app.post("/api/login", async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, phone, password } = req.body;
 
-    const user = await User.findOne({ email });
+    let user = null;
+
+    if (email) {
+      user = await User.findOne({ email });
+    } else if (phone) {
+      const normalizedPhone = normalizePhone(phone);
+      user = await User.findOne({ phone: normalizedPhone });
+    }
+
     if (!user) {
       return res.status(400).json({ message: "Пользователь не найден" });
     }
@@ -155,18 +266,24 @@ app.post("/api/login", async (req, res) => {
 
     res.json({
       message: "Вход успешен",
-      user: { _id: user._id, name: user.name, email: user.email, avatar: user.avatar || "" },
+      user: {
+        _id: user._id,
+        name: user.name,
+        email: user.email || "",
+        phone: user.phone || "",
+        avatar: user.avatar || "",
+        role: user.role || "user",
+      },
     });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 });
 
+// ========== OAuth МАРШРУТЫ ==========
 app.get(
   "/auth/google",
-  passport.authenticate("google", {
-    scope: ["profile", "email"],
-  }),
+  passport.authenticate("google", { scope: ["profile", "email"] }),
 );
 
 app.get(
@@ -175,7 +292,7 @@ app.get(
   async (req, res) => {
     const user = req.user;
     res.redirect(
-      `https://bahtarma.ru/auth-success?id=${user._id}&name=${encodeURIComponent(user.name)}&email=${user.email}`,
+      `https://bahtarma.ru/auth-success?id=${user._id}&name=${encodeURIComponent(user.name)}&email=${user.email}&role=${user.role || "user"}`,
     );
   },
 );
@@ -188,7 +305,7 @@ app.get(
   async (req, res) => {
     const user = req.user;
     res.redirect(
-      `https://bahtarma.ru/auth-success?id=${user._id}&name=${encodeURIComponent(user.name)}&email=${user.email}`,
+      `https://bahtarma.ru/auth-success?id=${user._id}&name=${encodeURIComponent(user.name)}&email=${user.email}&role=${user.role || "user"}`,
     );
   },
 );
@@ -204,29 +321,38 @@ app.get(
   async (req, res) => {
     const user = req.user;
     res.redirect(
-      `https://bahtarma.ru/auth-success?id=${user._id}&name=${encodeURIComponent(user.name)}&email=${user.email}`,
+      `https://bahtarma.ru/auth-success?id=${user._id}&name=${encodeURIComponent(user.name)}&email=${user.email}&role=${user.role || "user"}`,
     );
   },
 );
 
+// ========== ПРОФИЛЬ ПОЛЬЗОВАТЕЛЯ ==========
 app.put("/api/users/:userId", async (req, res) => {
   try {
     const { name, email, phone } = req.body;
     const user = await User.findById(req.params.userId);
-    
+
     if (!user) {
       return res.status(404).json({ message: "Пользователь не найден" });
     }
 
-    user.name = name || user.name;
-    user.email = email || user.email;
-    user.phone = phone || user.phone;
-    
+    if (name !== undefined) user.name = name;
+    if (email !== undefined) user.email = email;
+    if (phone !== undefined) {
+      user.phone = normalizePhone(phone);
+    }
+
     await user.save();
-    
+
     res.json({
       message: "Профиль обновлён",
-      user: { _id: user._id, name: user.name, email: user.email, phone: user.phone, avatar: user.avatar }
+      user: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        phone: user.phone,
+        avatar: user.avatar,
+      },
     });
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -237,7 +363,7 @@ app.put("/api/users/:userId/password", async (req, res) => {
   try {
     const { currentPassword, newPassword } = req.body;
     const user = await User.findById(req.params.userId);
-    
+
     if (!user) {
       return res.status(404).json({ message: "Пользователь не найден" });
     }
@@ -249,14 +375,214 @@ app.put("/api/users/:userId/password", async (req, res) => {
 
     user.password = await bcrypt.hash(newPassword, 10);
     await user.save();
-    
+
     res.json({ message: "Пароль успешно изменён" });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 });
 
+// ========== ЗАГРУЗКА ФАЙЛОВ ==========
+app.post(
+  "/api/upload/products",
+  isAdmin,
+  upload.array("images", 10),
+  (req, res) => {
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({ message: "Файлы не загружены" });
+    }
+
+    const urls = req.files.map((file) => `/img/products/${file.filename}`);
+    res.json({ urls });
+  },
+);
+
+app.post("/api/upload", isAdmin, upload.single("image"), (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ message: "Файл не загружен" });
+  }
+  res.json({ url: `/img/products/${req.file.filename}` });
+});
+
+// ========== АДМИН-МАРШРУТЫ ==========
+app.get("/api/admin/users", isAdmin, async (req, res) => {
+  try {
+    const users = await User.find({}).select("-password");
+    res.json(users);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+app.put("/api/admin/users/:userId", isAdmin, async (req, res) => {
+  try {
+    const { name, email, phone, role } = req.body;
+    const user = await User.findById(req.params.userId);
+
+    if (!user) {
+      return res.status(404).json({ message: "Пользователь не найден" });
+    }
+
+    if (name !== undefined) user.name = name;
+    if (email !== undefined) user.email = email;
+    if (phone !== undefined) user.phone = normalizePhone(phone);
+    if (role !== undefined) user.role = role;
+
+    await user.save();
+    res.json({
+      message: "Пользователь обновлён",
+      user: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        phone: user.phone,
+        role: user.role,
+      },
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+app.delete("/api/admin/users/:userId", isAdmin, async (req, res) => {
+  try {
+    await User.findByIdAndDelete(req.params.userId);
+    res.json({ message: "Пользователь удалён" });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+app.get("/api/admin/products", isAdmin, async (req, res) => {
+  try {
+    const products = await Product.find({}).sort({ createdAt: -1 });
+    res.json(products);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+app.post("/api/admin/products", isAdmin, async (req, res) => {
+  try {
+    const {
+      name,
+      title,
+      price,
+      images,
+      description,
+      category,
+      stock,
+      features,
+      materials,
+      size,
+    } = req.body;
+    const product = new Product({
+      name,
+      title,
+      price,
+      images,
+      description,
+      category,
+      stock,
+      features: features || [],
+      materials: materials || [],
+      size: size || "",
+    });
+    await product.save();
+    res.status(201).json(product);
+  } catch (err) {
+    console.error("Ошибка создания товара:", err);
+    res.status(400).json({ message: err.message });
+  }
+});
+
+app.put("/api/admin/products/:id", isAdmin, async (req, res) => {
+  try {
+    const {
+      name,
+      title,
+      price,
+      images,
+      description,
+      category,
+      stock,
+      features,
+      materials,
+      size,
+    } = req.body;
+    const product = await Product.findById(req.params.id);
+
+    if (!product) {
+      return res.status(404).json({ message: "Товар не найден" });
+    }
+
+    if (name !== undefined) product.name = name;
+    if (title !== undefined) product.title = title;
+    if (price !== undefined) product.price = price;
+    if (images !== undefined) product.images = images;
+    if (description !== undefined) product.description = description;
+    if (category !== undefined) product.category = category;
+    if (stock !== undefined) product.stock = stock;
+    if (features !== undefined) product.features = features;
+    if (materials !== undefined) product.materials = materials;
+    if (size !== undefined) product.size = size;
+
+    await product.save();
+    res.json(product);
+  } catch (err) {
+    console.error("Ошибка обновления товара:", err);
+    res.status(400).json({ message: err.message });
+  }
+});
+
+app.delete("/api/admin/products/:id", isAdmin, async (req, res) => {
+  try {
+    const product = await Product.findByIdAndDelete(req.params.id);
+    if (!product) {
+      return res.status(404).json({ message: "Товар не найден" });
+    }
+    res.json({ message: "Товар удалён" });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// ========== ЗАПУСК СЕРВЕРА ==========
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`Server running on http://localhost:${PORT}`);
+});
+
+// Установка пароля для пользователей без пароля (вошли через соцсети)
+app.post("/api/users/:userId/set-password", async (req, res) => {
+  try {
+    const { newPassword } = req.body;
+    const user = await User.findById(req.params.userId);
+
+    if (!user) {
+      return res.status(404).json({ message: "Пользователь не найден" });
+    }
+
+    if (user.password) {
+      return res.status(400).json({
+        message: "У вас уже есть пароль. Используйте раздел смены пароля.",
+      });
+    }
+
+    if (!newPassword || newPassword.length < 6) {
+      return res
+        .status(400)
+        .json({ message: "Пароль должен быть не менее 6 символов" });
+    }
+
+    user.password = await bcrypt.hash(newPassword, 10);
+    await user.save();
+
+    res.json({
+      message:
+        "Пароль успешно установлен! Теперь вы можете входить по email/паролю.",
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
 });

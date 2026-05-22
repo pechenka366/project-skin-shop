@@ -3,16 +3,17 @@ import { Link } from "react-router-dom";
 import styles from "./Header.module.scss";
 import Cart from "../Cart/index";
 import AuthModal from "../AuthModal/index";
-import { LogOut, UserCircle } from "lucide-react";
+import { LogOut, UserCircle, LayoutDashboard } from "lucide-react";
+import type { User } from "../../types"; 
 
 interface HeaderProps {
   onCartClick: () => void;
   isCartOpen: boolean;
   cartItems: any[];
   onRemoveFromCart: (id: string) => void;
-  user: { _id: string; name: string; email: string; avatar?: string } | null;
+  user: User | null; 
   onLogout: () => void;
-  onLogin: (userData: { _id: string; name: string; email: string; avatar?: string }) => void;
+  onLogin: (userData: User) => void;  
 }
 
 function Header({
@@ -38,7 +39,7 @@ function Header({
         isOpen={isAuthOpen}
         onClose={() => setIsAuthOpen(false)}
         onLogin={(userData) => {
-          onLogin(userData);
+          onLogin(userData as User);
           setIsAuthOpen(false);
         }}
       />
@@ -192,6 +193,12 @@ function Header({
                         <UserCircle size={18} />
                         <span>Профиль</span>
                       </Link>
+                      {user.role === 'admin' && (
+                        <Link to="/admin" className={styles.dropdownItem}>
+                          <LayoutDashboard size={18} />
+                          <span>Админ панель</span>
+                        </Link>
+                      )}
                       <button onClick={onLogout} className={styles.dropdownItem}>
                         <LogOut size={18} />
                         <span>Выйти</span>

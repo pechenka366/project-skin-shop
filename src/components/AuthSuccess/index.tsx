@@ -9,9 +9,10 @@ function AuthSuccess() {
     const id = urlParams.get('id');
     const name = urlParams.get('name');
     const email = urlParams.get('email');
+    const role = urlParams.get('role'); 
 
     if (id && name && email) {
-      const user = { _id: id, name, email };
+      const user = { _id: id, name, email, role: role || 'user' };
       localStorage.setItem('user', JSON.stringify(user));
       
       window.dispatchEvent(new CustomEvent('userLogin', { detail: user }));
