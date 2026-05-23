@@ -28,7 +28,7 @@ const __dirname = path.dirname(__filename);
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, path.join(__dirname, "../frontend/img/products/"));
+    cb(null, path.join(__dirname, "../frontend/dist/img/products/"));
   },
   filename: function (req, file, cb) {
     const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
@@ -582,6 +582,99 @@ app.post("/api/users/:userId/set-password", async (req, res) => {
       message:
         "Пароль успешно установлен! Теперь вы можете входить по email/паролю.",
     });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// Схема категории
+const categorySchema = new mongoose.Schema({
+  name: { type: String, required: true, unique: true },
+  slug: { type: String, required: true, unique: true },
+  description: { type: String, default: "" },
+  image: { type: String, default: "" },
+  createdAt: { type: Date, default: Date.now },
+});
+
+const Category = mongoose.model("Category", categorySchema);
+
+// ========== МАРШРУТЫ ДЛЯ КАТЕГОРИЙ ==========
+
+// Получить все категории (публичный)
+app.get("/api/categories", async (req, res) => {
+  try {
+    const categories = await Category.find().sort({ name: 1 });
+    res.json(categories);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// Получить товары по категории
+app.get("/api/products/category/:slug", async (req, res) => {
+  try {
+    const category = await Category.findOne({ slug: req.params.slug });
+    if (!category) {
+      return res.status(404).json({ message: "Категория не найдена" });
+    }
+    const products = await Product.find({ category: category.name });
+    res.json(products);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// ========== АДМИН-МАРШРУТЫ ДЛЯ КАТЕГОРИЙ ==========
+
+// Получить все категории (админ)
+app.get("/api/admin/categories", isAdmin, async (req, res) => {
+  try {
+    const categories = await Category.find().sort({ name: 1 });
+    res.json(categories);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// Создать категорию
+app.post("/api/admin/categories", isAdmin, async (req, res) => {
+  try {
+    const { name, description, image } = req.body;
+    const slug = name.toLowerCase().replace(/[^a-zа-яё0-9]+/g, '-');
+    const category = new Category({ name, slug, description, image });
+    await category.save();
+    res.status(201).json(category);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+});
+
+// Обновить категорию
+app.put("/api/admin/categories/:id", isAdmin, async (req, res) => {
+  try {
+    const { name, description, image } = req.body;
+    const category = await Category.findById(req.params.id);
+    if (!category) {
+      return res.status(404).json({ message: "Категория не найдена" });
+    }
+    if (name) {
+      category.name = name;
+      category.slug = name.toLowerCase().replace(/[^a-zа-яё0-9]+/g, '-');
+    }
+    if (description !== undefined) category.description = description;
+    if (image !== undefined) category.image = image;
+    await category.save();
+    res.json(category);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+});
+
+// Удалить категорию
+app.delete("/api/admin/categories/:id", isAdmin, async (req, res) => {
+  try {
+    await Category.findByIdAndDelete(req.params.id);
+    res.json({ message: "Категория удалена" });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

@@ -16,9 +16,17 @@ interface Product {
   size?: string;
 }
 
+interface Category {
+  _id: string;
+  name: string;
+  slug: string;
+}
+
 function AdminProducts() {
   const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingCategories, setLoadingCategories] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [formData, setFormData] = useState({
     name: '',
@@ -27,8 +35,8 @@ function AdminProducts() {
     description: '',
     category: '',
     stock: '',
-    features: ['', '', '', ''],  
-    materials: ['', '', ''],     
+    features: ['', '', '', ''],
+    materials: ['', '', ''],
     size: '',
   });
   const [selectedFiles, setSelectedFiles] = useState<FileList | null>(null);
@@ -38,6 +46,7 @@ function AdminProducts() {
 
   useEffect(() => {
     loadProducts();
+    loadCategories();
   }, []);
 
   const loadProducts = async () => {
@@ -50,6 +59,18 @@ function AdminProducts() {
       console.error('Ошибка загрузки товаров:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadCategories = async () => {
+    setLoadingCategories(true);
+    try {
+      const response = await axios.get(`${API_URL}/api/categories`);
+      setCategories(response.data);
+    } catch (error) {
+      console.error('Ошибка загрузки категорий:', error);
+    } finally {
+      setLoadingCategories(false);
     }
   };
 
@@ -167,6 +188,7 @@ function AdminProducts() {
           placeholder="Название"
           value={formData.name}
           onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+          required
         />
         
         <input
@@ -174,6 +196,7 @@ function AdminProducts() {
           placeholder="Краткое описание"
           value={formData.title}
           onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+          required
         />
         
         <input
@@ -181,6 +204,7 @@ function AdminProducts() {
           placeholder="Цена"
           value={formData.price}
           onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+          required
         />
         
         <textarea
@@ -190,12 +214,33 @@ function AdminProducts() {
           rows={3}
         />
         
-        <input
-          type="text"
-          placeholder="Категория"
-          value={formData.category}
-          onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-        />
+        <div className={styles.formGroup}>
+          <label>Категория</label>
+          <select
+            value={formData.category}
+            onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+            className={styles.categorySelect}
+            required
+          >
+            <option value="">Выберите категорию</option>
+            {loadingCategories ? (
+              <option disabled>Загрузка категорий...</option>
+            ) : categories.length === 0 ? (
+              <option disabled>Нет категорий. Сначала создайте категорию</option>
+            ) : (
+              categories.map((category) => (
+                <option key={category._id} value={category.name}>
+                  {category.name}
+                </option>
+              ))
+            )}
+          </select>
+          {categories.length === 0 && !loadingCategories && (
+            <p className={styles.hint}>
+              Нет доступных категорий. Создайте их в разделе "Управление категориями"
+            </p>
+          )}
+        </div>
         
         <input
           type="number"
@@ -263,16 +308,20 @@ function AdminProducts() {
       </form>
 
       <div className={styles.productsList}>
+        <h2>Существующие товары</h2>
         {products.map(product => (
           <div key={product._id} className={styles.productCard}>
             {product.images?.[0] && (
               <img src={product.images[0]} alt={product.name} />
             )}
             <h3>{product.name || 'Без названия'}</h3>
-            <p>{product.price?.toLocaleString() || 0} ₽</p>
+            <p className={styles.productPrice}>{product.price?.toLocaleString() || 0} ₽</p>
+            {product.category && (
+              <p className={styles.productCategory}>Категория: {product.category}</p>
+            )}
             <div className={styles.productActions}>
-              <button onClick={() => handleEdit(product)} className={styles.editBtn}>✏️</button>
-              <button onClick={() => handleDelete(product._id)} className={styles.deleteBtn}>🗑️</button>
+              <button onClick={() => handleEdit(product)} className={styles.editBtn}>✏️ Редактировать</button>
+              <button onClick={() => handleDelete(product._id)} className={styles.deleteBtn}>🗑️ Удалить</button>
             </div>
           </div>
         ))}

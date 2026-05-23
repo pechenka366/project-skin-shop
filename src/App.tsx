@@ -14,6 +14,10 @@ import AdminLayout from "./components/Admin/AdminLayout";
 import AdminProducts from "./components/Admin/AdminProducts";
 import AdminUsers from "./components/Admin/AdminUsers";
 import AdminGuard from "./components/Admin/AdminGuard";
+import CategoriesPage from "./components/CategoriesPage";
+import CatalogByCategory from "./components/CatalogByCategory";
+import Breadcrumbs from "./components/Breadcrumbs";
+import AdminCategories from "./components/Admin/AdminCategories";
 import "./style/resert.css";
 import "./App.css";
 import { useEffect, useState } from "react";
@@ -189,10 +193,11 @@ function App() {
         onLogout={handleLogout}
         onLogin={handleLogin}
       />
-
+      <Breadcrumbs />
       <Routes>
         <Route path="/profile" element={<Profile />} />
-
+        <Route path="/categories" element={<CategoriesPage />} />
+        <Route path="/catalog/:slug" element={<CatalogByCategory />} />
         <Route
           path="/admin/*"
           element={
@@ -204,6 +209,7 @@ function App() {
           <Route index element={<AdminProducts />} />
           <Route path="products" element={<AdminProducts />} />
           <Route path="users" element={<AdminUsers />} />
+          <Route path="categories" element={<AdminCategories />} />
         </Route>
 
         <Route

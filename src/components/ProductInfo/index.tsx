@@ -6,7 +6,7 @@ import { Truck as ProductTruck } from "lucide-react";
 import { Shield as ProductProtect } from "lucide-react";
 import { Box as ProductBox } from "lucide-react";
 import { Check as ProductCheck } from "lucide-react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import type { Product } from "../../types";
@@ -25,10 +25,23 @@ function ProductInfo({ products, onAddToCart, isLoading }: CatalogProps) {
   const [error, setError] = useState<string | null>(null);
   const [mainImage, setMainImage] = useState<string>("");
 
-  const API_URL = window.location.hostname === 'localhost' 
-    ? 'http://localhost:5000' 
-    : 'https://bahtarma.ru';
+  const location = useLocation();
+  const API_URL =
+    window.location.hostname === "localhost"
+      ? "http://localhost:5000"
+      : "https://bahtarma.ru";
 
+  useEffect(() => {
+    if (product) {
+      // Сохраняем название товара в state для хлебных крошек
+      const breadcrumbState = {
+        productName: product.name,
+        productId: product._id,
+      };
+      window.history.replaceState(breadcrumbState, "", location.pathname);
+    }
+  }, [product, location]);
+  
   useEffect(() => {
     if (!id) {
       navigate("/");
@@ -64,7 +77,11 @@ function ProductInfo({ products, onAddToCart, isLoading }: CatalogProps) {
     return <div className={styles.error}>{error || "Товар не найден"}</div>;
   }
 
-  const images = product.images?.length ? product.images : (product.img ? [product.img] : []);
+  const images = product.images?.length
+    ? product.images
+    : product.img
+      ? [product.img]
+      : [];
 
   const renderItems = () => {
     const items = isLoading ? [...Array(6)] : products;
@@ -124,11 +141,14 @@ function ProductInfo({ products, onAddToCart, isLoading }: CatalogProps) {
           <div className={styles.productRight}>
             <h1 className={styles.productBackpack}>{product.name}</h1>
             <p className={styles.productPackInfo}>{product.title}</p>
-            <p className={styles.productPrice}>₽ {product.price.toLocaleString()}</p>
-            <p className={styles.productInfo}>
-              {product.description || "Функциональный кожаный рюкзак для работы и путешествий. Сочетает классический стиль с современной практичностью, предлагая достаточно места для ноутбука и личных вещей."}
+            <p className={styles.productPrice}>
+              ₽ {product.price.toLocaleString()}
             </p>
-            <button 
+            <p className={styles.productInfo}>
+              {product.description ||
+                "Функциональный кожаный рюкзак для работы и путешествий. Сочетает классический стиль с современной практичностью, предлагая достаточно места для ноутбука и личных вещей."}
+            </p>
+            <button
               className={styles.productButton}
               onClick={() => onAddToCart(product)}
             >
@@ -150,13 +170,14 @@ function ProductInfo({ products, onAddToCart, isLoading }: CatalogProps) {
               </div>
             </div>
 
-            {/* Особенности из БД */}
             {product.features && product.features.length > 0 && (
               <div className={styles.productPeculiarities}>
                 <h1 className={styles.productPeculiaritiesInfo}>Особенности</h1>
                 {product.features.map((feature, idx) => (
                   <div key={idx} className={styles.productPeculiaritiesLi}>
-                    <ProductCheck className={styles.productPeculiaritiesImage} />
+                    <ProductCheck
+                      className={styles.productPeculiaritiesImage}
+                    />
                     <p className={styles.productPeculiaritiesText}>{feature}</p>
                   </div>
                 ))}
@@ -169,7 +190,9 @@ function ProductInfo({ products, onAddToCart, isLoading }: CatalogProps) {
                 </div>
                 <div className={styles.productMaterialis}>
                   {product.materials.map((material, idx) => (
-                    <p key={idx} className={styles.productMaterial}>{material}</p>
+                    <p key={idx} className={styles.productMaterial}>
+                      {material}
+                    </p>
                   ))}
                 </div>
               </div>

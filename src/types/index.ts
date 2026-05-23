@@ -38,3 +38,12 @@ export interface NotificationState {
   type: "success" | "error" | "info";
   id: number;
 }
+
+export interface Category {
+  _id: string;
+  name: string;
+  slug: string;
+  description?: string;
+  image?: string;
+  createdAt?: Date;
+}

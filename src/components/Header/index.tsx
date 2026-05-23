@@ -65,7 +65,7 @@ function Header({
             <ul className={styles.navList}>
               <li className={styles.navItem}>
                 <Link
-                  to="/"
+                  to="/categories"
                   className={styles.navLink}
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
